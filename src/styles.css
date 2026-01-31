@@ -1,1 +1,125 @@
 /* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=MedievalSharp&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    min-height: 100vh;
+    
+    /* Medieval German Beer-Themed Background */
+    background: 
+        /* Rising beer foam bubbles - multiple layers for continuous effect */
+        radial-gradient(circle, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.2) 1%, transparent 2.5%),
+        radial-gradient(circle, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.18) 1.2%, transparent 3%),
+        radial-gradient(circle, rgba(255, 255, 255, 0.48) 0%, rgba(255, 255, 255, 0.16) 1%, transparent 2.8%),
+        radial-gradient(circle, rgba(255, 255, 255, 0.52) 0%, rgba(255, 255, 255, 0.19) 1.3%, transparent 3.2%),
+        radial-gradient(circle, rgba(255, 255, 255, 0.49) 0%, rgba(255, 255, 255, 0.17) 1.1%, transparent 2.6%),
+        radial-gradient(circle, rgba(255, 255, 255, 0.51) 0%, rgba(255, 255, 255, 0.2) 1.2%, transparent 3%),
+        radial-gradient(circle, rgba(255, 255, 255, 0.47) 0%, rgba(255, 255, 255, 0.16) 1%, transparent 2.9%),
+        radial-gradient(circle, rgba(255, 255, 255, 0.54) 0%, rgba(255, 255, 255, 0.21) 1.3%, transparent 3.1%),
+        radial-gradient(circle, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.18) 1.1%, transparent 2.7%),
+        radial-gradient(circle, rgba(255, 255, 255, 0.53) 0%, rgba(255, 255, 255, 0.19) 1.2%, transparent 3%),
+        /* Unfiltered German beer color - hazy Hefeweizen style */
+        linear-gradient(
+            180deg,
+            #f5d69a 0%,
+            #e6b85c 15%,
+            #d4a048 30%,
+            #c9943d 50%,
+            #d4a048 70%,
+            #e6b85c 85%,
+            #f5d69a 100%
+        ),
+        /* Base golden amber beer color */
+        linear-gradient(135deg, #f0c674 0%, #e6a740 50%, #d4922f 100%);
+    
+    background-size:
+        90px 90px,
+        130px 130px,
+        110px 110px,
+        100px 100px,
+        120px 120px,
+        95px 95px,
+        105px 105px,
+        115px 115px,
+        125px 125px,
+        135px 135px,
+        100% 100%,
+        100% 100%;
+    
+    background-position:
+        15% 150%,
+        35% 140%,
+        65% 145%,
+        85% 155%,
+        25% 148%,
+        75% 142%,
+        45% 152%,
+        55% 138%,
+        10% 146%,
+        90% 144%,
+        0 0,
+        0 0;
+    
+    background-attachment: fixed;
+    animation: bubblesRising 15s linear infinite;
+}
+
+/* Beer bubbles rising animation - simulates bubbles floating upward */
+@keyframes bubblesRising {
+    0% {
+        background-position:
+            15% 150%,
+            35% 140%,
+            65% 145%,
+            85% 155%,
+            25% 148%,
+            75% 142%,
+            45% 152%,
+            55% 138%,
+            10% 146%,
+            90% 144%,
+            0 0,
+            0 0;
+    }
+    100% {
+        background-position:
+            15% -50%,
+            35% -60%,
+            65% -55%,
+            85% -45%,
+            25% -52%,
+            75% -58%,
+            45% -48%,
+            55% -62%,
+            10% -54%,
+            90% -56%,
+            0 0,
+            0 0;
+    }
+}
+
+/* Add a subtle vignette overlay for depth */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(
+        ellipse at center,
+        transparent 0%,
+        rgba(0, 0, 0, 0.08) 70%,
+        rgba(0, 0, 0, 0.15) 100%
+    );
+    pointer-events: none;
+    z-index: -1;
+}

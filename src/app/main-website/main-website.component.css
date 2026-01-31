@@ -1,0 +1,703 @@
+@import url('https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=MedievalSharp&display=swap');
+
+.content-wrapper {
+    padding: 0;
+    min-height: calc(100vh - 200px);
+}
+
+/* Hero Section */
+.hero-section {
+    margin: 0.75rem 1rem 1.5rem 1rem;
+}
+
+/* Medieval Frame Container */
+.medieval-frame {
+    position: relative;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #2c1810 0%, #1a0f08 50%, #2c1810 100%);
+    border: 6px solid #8b6914;
+    border-radius: 20px;
+    box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.7),
+        inset 0 2px 4px rgba(139, 105, 20, 0.3);
+}
+
+/* Hero Content Container */
+.hero-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem 0;
+}
+
+/* Frame Corners */
+.frame-corner {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border: 3px solid #d4af37;
+    z-index: 2;
+}
+
+.frame-corner.top-left {
+    top: -3px;
+    left: -3px;
+    border-right: none;
+    border-bottom: none;
+    border-radius: 20px 0 0 0;
+}
+
+.frame-corner.top-right {
+    top: -3px;
+    right: -3px;
+    border-left: none;
+    border-bottom: none;
+    border-radius: 0 20px 0 0;
+}
+
+.frame-corner.bottom-left {
+    bottom: -3px;
+    left: -3px;
+    border-right: none;
+    border-top: none;
+    border-radius: 0 0 0 20px;
+}
+
+.frame-corner.bottom-right {
+    bottom: -3px;
+    right: -3px;
+    border-left: none;
+    border-top: none;
+    border-radius: 0 0 20px 0;
+}
+
+/* Frame Ornaments */
+.frame-ornament {
+    position: absolute;
+    background: repeating-linear-gradient(
+        90deg,
+        #8b6914 0px,
+        #d4af37 3px,
+        #8b6914 6px,
+        #5c4a0f 9px,
+        #8b6914 12px
+    );
+    z-index: 1;
+}
+
+.frame-ornament.top-ornament,
+.frame-ornament.bottom-ornament {
+    height: 6px;
+    left: 30px;
+    right: 30px;
+}
+
+.frame-ornament.top-ornament {
+    top: -3px;
+}
+
+.frame-ornament.bottom-ornament {
+    bottom: -3px;
+}
+
+.frame-ornament.left-ornament,
+.frame-ornament.right-ornament {
+    width: 6px;
+    top: 30px;
+    bottom: 30px;
+}
+
+.frame-ornament.left-ornament {
+    left: -3px;
+}
+
+.frame-ornament.right-ornament {
+    right: -3px;
+}
+
+/* Quotes Section */
+.quotes-section {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.quotes-container {
+    position: relative;
+    width: 100%;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Quote Slides */
+.quote-slide {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.95);
+    width: 95%;
+    opacity: 0;
+    transition: opacity 2s ease-in-out, transform 2s ease-in-out;
+    padding: 1rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.quote-slide.active {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    z-index: 1;
+    animation: quoteDisplay 10s ease-in-out;
+}
+
+/* Cinematic Quote Display Animation */
+@keyframes quoteDisplay {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.95);
+    }
+    5% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    95% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.95);
+    }
+}
+
+.quote-mark {
+    font-size: 2rem;
+    color: #d4af37;
+    font-family: Georgia, serif;
+    line-height: 1;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+    opacity: 0.8;
+}
+
+.quote-text {
+    font-family: 'MedievalSharp', cursive;
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: #ffd700;
+    margin: 0.5rem 0;
+    text-shadow:
+        2px 2px 4px rgba(0, 0, 0, 0.9),
+        0 0 15px rgba(139, 105, 20, 0.6);
+    font-style: italic;
+    max-width: 100%;
+}
+
+.quote-author {
+    font-family: 'MedievalSharp', cursive;
+    font-size: 1rem;
+    color: #d4af37;
+    margin-top: 0.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+    letter-spacing: 0.5px;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .quote-text {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .content-wrapper {
+        padding: 1rem;
+    }
+
+    .medieval-frame {
+        padding: 1.25rem;
+        border-width: 6px;
+    }
+
+    .frame-corner {
+        width: 30px;
+        height: 30px;
+        border-width: 3px;
+    }
+
+    .frame-ornament.top-ornament,
+    .frame-ornament.bottom-ornament {
+        left: 30px;
+        right: 30px;
+    }
+
+    .frame-ornament.left-ornament,
+    .frame-ornament.right-ornament {
+        top: 30px;
+        bottom: 30px;
+    }
+
+    .quotes-section {
+        min-height: 150px;
+    }
+
+    .quotes-container {
+        min-height: 150px;
+    }
+
+    .quote-slide {
+        padding: 1rem;
+        width: 95%;
+    }
+
+    .quote-mark {
+        font-size: 1.5rem;
+    }
+
+    .quote-text {
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+    .quote-author {
+        font-size: 0.85rem;
+        align-self: center;
+    }
+
+    .categories-title {
+        font-size: 1.8rem;
+    }
+
+    .category-card {
+        min-width: 180px;
+        padding: 1rem 1.25rem;
+    }
+
+    .category-icon {
+        font-size: 1.8rem;
+    }
+
+    .category-name {
+        font-size: 0.9rem;
+    }
+
+    .categories-grid {
+        gap: 1rem;
+    }
+}
+
+/* Featured Categories Section */
+.featured-categories {
+    margin: 0 1rem 2rem 1rem;
+    padding: 0;
+}
+
+.categories-title {
+    font-family: 'UnifrakturMaguntia', cursive;
+    font-size: 2.2rem;
+    color: #ffd700;
+    text-align: center;
+    margin: 0 0 2rem 0;
+    text-shadow:
+        3px 3px 0px #8b6914,
+        6px 6px 10px rgba(0, 0, 0, 0.9);
+    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.3));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.categories-title .title-ornament {
+    font-size: 1.5rem;
+    color: #d4af37;
+}
+
+.categories-grid {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    padding: 1rem 0;
+}
+
+.category-card {
+    background: linear-gradient(135deg, #2c1810 0%, #1a0f08 50%, #2c1810 100%);
+    border: 3px solid #8b6914;
+    border-radius: 12px;
+    padding: 1.25rem 1.75rem;
+    min-width: 220px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.6),
+        inset 0 2px 4px rgba(139, 105, 20, 0.2);
+    text-decoration: none;
+}
+
+.category-card:hover {
+    transform: translateY(-5px) scale(1.05);
+    border-color: #d4af37;
+    box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.8),
+        inset 0 2px 4px rgba(139, 105, 20, 0.3),
+        0 0 20px rgba(212, 175, 55, 0.4);
+}
+
+.category-icon {
+    font-size: 2.5rem;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
+}
+
+.category-name {
+    font-family: 'MedievalSharp', cursive;
+    font-size: 1rem;
+    color: #ffd700;
+    text-align: center;
+    text-shadow:
+        2px 2px 4px rgba(0, 0, 0, 0.9),
+        0 0 10px rgba(139, 105, 20, 0.5);
+    letter-spacing: 0.5px;
+    line-height: 1.4;
+}
+
+/* Coming Soon Badge */
+.coming-soon {
+    font-family: 'MedievalSharp', cursive;
+    font-size: 0.75rem;
+    color: #8b6914;
+    font-style: italic;
+    margin-top: 0.25rem;
+}
+
+.category-card.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.category-card.disabled:hover {
+    transform: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6), inset 0 1px 3px rgba(255, 255, 255, 0.1);
+    border-color: #8b6914;
+}
+
+.category-card.active {
+    border-color: #ffd700;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.8), inset 0 1px 3px rgba(255, 255, 255, 0.2), 0 0 20px rgba(255, 215, 0, 0.6);
+    transform: translateY(-5px) scale(1.03);
+}
+
+/* Beer Catalog Section */
+.beer-catalog {
+    margin: 2rem 1rem;
+    padding: 2rem;
+    background: linear-gradient(180deg, #2c1810 0%, #1a0f08 100%);
+    border: 6px solid #8b6914;
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7), inset 0 2px 4px rgba(139, 105, 20, 0.3);
+    position: relative;
+    overflow: hidden;
+    animation: slideDown 0.5s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.catalog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.catalog-title {
+    font-family: 'UnifrakturMaguntia', cursive;
+    font-size: 2rem;
+    color: #ffd700;
+    text-shadow:
+        2px 2px 0px #8b6914,
+        4px 4px 8px rgba(0, 0, 0, 0.9);
+    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.3));
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0;
+}
+
+.close-catalog-button {
+    font-family: 'MedievalSharp', cursive;
+    font-size: 1rem;
+    padding: 0.6rem 1.2rem;
+    background: linear-gradient(135deg, #8b6914 0%, #d4af37 100%);
+    border: 2px solid #d4af37;
+    border-radius: 8px;
+    color: #1a0f08;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.close-catalog-button:hover {
+    background: linear-gradient(135deg, #d4af37 0%, #ffd700 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(212, 175, 55, 0.6);
+}
+
+.close-icon {
+    font-size: 1.2rem;
+}
+
+/* Beer Grid */
+.beer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+    padding: 1rem 0;
+}
+
+/* Beer Tile */
+.beer-tile {
+    background: linear-gradient(135deg, #3d2817 0%, #2c1810 100%);
+    border: 3px solid #8b6914;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+}
+
+.beer-tile:hover {
+    transform: translateY(-8px);
+    border-color: #d4af37;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.8), 0 0 20px rgba(212, 175, 55, 0.4);
+}
+
+/* Beer Image */
+.beer-image-container {
+    position: relative;
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #1a0f08 0%, #2c1810 100%);
+}
+
+.beer-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.beer-tile:hover .beer-image {
+    transform: scale(1.1);
+}
+
+.beer-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+}
+
+.beer-style {
+    font-family: 'MedievalSharp', cursive;
+    font-size: 0.9rem;
+    color: #ffd700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+    background: rgba(139, 105, 20, 0.3);
+    padding: 0.3rem 0.8rem;
+    border-radius: 6px;
+    border: 1px solid #8b6914;
+}
+
+/* Beer Info */
+.beer-info {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    flex: 1;
+}
+
+.beer-brand {
+    font-family: 'UnifrakturMaguntia', cursive;
+    font-size: 1.4rem;
+    color: #ffd700;
+    margin: 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+}
+
+.beer-name {
+    font-family: 'MedievalSharp', cursive;
+    font-size: 1rem;
+    color: #d4af37;
+    margin: 0;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.beer-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.75rem 0;
+    border-top: 1px solid #8b6914;
+    border-bottom: 1px solid #8b6914;
+}
+
+.beer-country {
+    font-family: 'MedievalSharp', cursive;
+    font-size: 0.9rem;
+    color: #c9a961;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.detail-icon {
+    font-size: 1rem;
+}
+
+/* Beer Footer */
+.beer-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-top: auto;
+}
+
+.beer-price {
+    font-family: 'MedievalSharp', cursive;
+    font-size: 1.5rem;
+    color: #ffd700;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: baseline;
+    gap: 0.25rem;
+}
+
+.currency {
+    font-size: 1.2rem;
+}
+
+.price-value {
+    font-size: 1.8rem;
+}
+
+/* Add to Cart Button */
+.add-to-cart-button {
+    font-family: 'MedievalSharp', cursive;
+    font-size: 0.9rem;
+    font-weight: bold;
+    padding: 0.6rem 1rem;
+    background: linear-gradient(135deg, #8b6914 0%, #d4af37 50%, #8b6914 100%);
+    border: 2px solid #d4af37;
+    border-radius: 8px;
+    color: #1a0f08;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    white-space: nowrap;
+}
+
+.add-to-cart-button:hover {
+    background: linear-gradient(135deg, #d4af37 0%, #ffd700 50%, #d4af37 100%);
+    border-color: #ffd700;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(212, 175, 55, 0.6);
+}
+
+.add-to-cart-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+.add-to-cart-button .button-icon {
+    font-size: 1rem;
+}
+
+/* Responsive Design for Beer Catalog */
+@media (max-width: 1024px) {
+    .beer-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .beer-catalog {
+        margin: 1rem 0.5rem;
+        padding: 1.5rem 1rem;
+    }
+
+    .catalog-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .catalog-title {
+        font-size: 1.6rem;
+        justify-content: center;
+    }
+
+    .close-catalog-button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .beer-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .beer-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .add-to-cart-button {
+        width: 100%;
+        justify-content: center;
+    }
+}
+

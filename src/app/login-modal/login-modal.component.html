@@ -1,0 +1,227 @@
+<div class="modal-overlay" (click)="onClose()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+        <div class="modal-frame">
+            <div class="frame-corner top-left"></div>
+            <div class="frame-corner top-right"></div>
+            <div class="frame-corner bottom-left"></div>
+            <div class="frame-corner bottom-right"></div>
+            <div class="frame-ornament top-ornament"></div>
+            <div class="frame-ornament bottom-ornament"></div>
+            <div class="frame-ornament left-ornament"></div>
+            <div class="frame-ornament right-ornament"></div>
+            
+            <button class="close-button" (click)="onClose()" aria-label="Close modal">
+                <span class="close-icon">✕</span>
+            </button>
+            
+            <div class="modal-content">
+                <h2 class="modal-title">
+                    <span class="title-ornament">⚜</span>
+                    {{ isSignupMode ? 'Create Account' : 'Welcome Back' }}
+                    <span class="title-ornament">⚜</span>
+                </h2>
+                
+                <!-- Error Message -->
+                <div *ngIf="errorMessage" class="error-message" style="color: #ff6b6b; background: rgba(255, 107, 107, 0.1); padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem; text-align: center; border: 2px solid rgba(255, 107, 107, 0.3);">
+                    {{ errorMessage }}
+                </div>
+                
+                <!-- Login Form -->
+                <form *ngIf="!isSignupMode" class="login-form" (ngSubmit)="onLogin()">
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            [(ngModel)]="email"
+                            class="form-input"
+                            placeholder="Enter your email"
+                            required
+                        />
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password" class="form-label">Password</label>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            [(ngModel)]="password"
+                            class="form-input"
+                            placeholder="Enter your password"
+                            required
+                        />
+                    </div>
+                    
+                    <div class="form-options">
+                        <label class="checkbox-label">
+                            <input
+                                type="checkbox"
+                                name="rememberPassword"
+                                [(ngModel)]="rememberPassword"
+                                class="checkbox-input"
+                            />
+                            <span class="checkbox-text">Remember password</span>
+                        </label>
+                        
+                        <button type="button" class="forgot-button" (click)="onForgotPassword()">
+                            Forgotten password?
+                        </button>
+                    </div>
+                    
+                    <button type="submit" class="login-button">
+                        <span class="button-icon">🔓</span>
+                        <span>Login</span>
+                    </button>
+                </form>
+
+                <!-- Signup Form -->
+                <form *ngIf="isSignupMode" class="login-form signup-form" (ngSubmit)="onSignUp()">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName" class="form-label">First Name</label>
+                            <input
+                                type="text"
+                                id="firstName"
+                                name="firstName"
+                                [(ngModel)]="firstName"
+                                class="form-input"
+                                [class.error]="validationErrors['firstName']"
+                                placeholder="Enter your first name"
+                                required
+                            />
+                            <span *ngIf="validationErrors['firstName']" class="error-message">
+                                {{ validationErrors['firstName'] }}
+                            </span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="lastName" class="form-label">Last Name</label>
+                            <input
+                                type="text"
+                                id="lastName"
+                                name="lastName"
+                                [(ngModel)]="lastName"
+                                class="form-input"
+                                [class.error]="validationErrors['lastName']"
+                                placeholder="Enter your last name"
+                                required
+                            />
+                            <span *ngIf="validationErrors['lastName']" class="error-message">
+                                {{ validationErrors['lastName'] }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="dateOfBirth" class="form-label">Date of Birth</label>
+                        <input
+                            type="date"
+                            id="dateOfBirth"
+                            name="dateOfBirth"
+                            [(ngModel)]="dateOfBirth"
+                            class="form-input"
+                            [class.error]="validationErrors['dateOfBirth']"
+                            required
+                        />
+                        <span *ngIf="validationErrors['dateOfBirth']" class="error-message">
+                            {{ validationErrors['dateOfBirth'] }}
+                        </span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="signupEmail" class="form-label">Email Address</label>
+                        <input
+                            type="email"
+                            id="signupEmail"
+                            name="signupEmail"
+                            [(ngModel)]="signupEmail"
+                            class="form-input"
+                            [class.error]="validationErrors['email']"
+                            placeholder="Enter your email"
+                            required
+                        />
+                        <span *ngIf="validationErrors['email']" class="error-message">
+                            {{ validationErrors['email'] }}
+                        </span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="signupPassword" class="form-label">Password</label>
+                        <input
+                            type="password"
+                            id="signupPassword"
+                            name="signupPassword"
+                            [(ngModel)]="signupPassword"
+                            class="form-input"
+                            [class.error]="validationErrors['password']"
+                            placeholder="e.g., MyPass123!"
+                            required
+                        />
+                        <span *ngIf="validationErrors['password']" class="error-message">
+                            {{ validationErrors['password'] }}
+                        </span>
+                        <span class="password-hint" style="color: #8b6914; font-size: 0.85rem; display: block; margin-top: 0.25rem;">
+                            Must include: uppercase, lowercase, number, and special char (&#64;$!%*?&)
+                        </span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirmPassword" class="form-label">Confirm Password</label>
+                        <input
+                            type="password"
+                            id="confirmPassword"
+                            name="confirmPassword"
+                            [(ngModel)]="confirmPassword"
+                            class="form-input"
+                            [class.error]="validationErrors['confirmPassword']"
+                            placeholder="Re-enter your password"
+                            required
+                        />
+                        <span *ngIf="validationErrors['confirmPassword']" class="error-message">
+                            {{ validationErrors['confirmPassword'] }}
+                        </span>
+                    </div>
+                    
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label" [class.error]="validationErrors['over18']">
+                            <input
+                                type="checkbox"
+                                name="over18"
+                                [(ngModel)]="over18"
+                                class="checkbox-input"
+                            />
+                            <span class="checkbox-text">I am over 18 years old</span>
+                        </label>
+                        <span *ngIf="validationErrors['over18']" class="error-message">
+                            {{ validationErrors['over18'] }}
+                        </span>
+                    </div>
+                    
+                    <button type="submit" class="login-button signup-submit-button">
+                        <span class="button-icon">📝</span>
+                        <span>Sign Up</span>
+                    </button>
+                    
+                    <button type="button" class="back-to-login" (click)="switchToLogin()">
+                        Already have an account? <strong>Login here</strong>
+                    </button>
+                </form>
+                
+                <div *ngIf="!isSignupMode" class="signup-section">
+                    <div class="divider">
+                        <span class="divider-ornament">❧</span>
+                    </div>
+                    <p class="signup-text">
+                        Don't have an account yet?
+                    </p>
+                    <button type="button" class="signup-button" (click)="switchToSignup()">
+                        <span class="button-icon">📝</span>
+                        <span>Create Account</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

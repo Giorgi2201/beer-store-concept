@@ -1,0 +1,56 @@
+<header class="medieval-header">
+    <div class="header-ornament top-ornament"></div>
+    <div class="header-content">
+        <div class="title-section">
+            <div class="shield-left"></div>
+            <h1 class="medieval-title">
+                <span class="title-main">Beer Store</span>
+            </h1>
+            <div class="shield-right"></div>
+        </div>
+        <nav class="medieval-nav">
+            <ul class="nav-links">
+                <li><a href="#" class="nav-link" (click)="onHomeClick(); $event.preventDefault()">
+                    <span class="link-ornament">🏰</span>
+                    <span>Home</span>
+                </a></li>
+                <li><a href="#" class="nav-link" (click)="onCategoriesClick(); $event.preventDefault()">
+                    <span class="link-ornament">🍺</span>
+                    <span>Categories</span>
+                </a></li>
+                <li><a href="#" class="nav-link">
+                    <span class="link-ornament">📜</span>
+                    <span>About Us</span>
+                </a></li>
+                <li><a href="#" class="nav-link">
+                    <span class="link-ornament">📩</span>
+                    <span>Contact</span>
+                </a></li>
+            </ul>
+            <div class="header-actions">
+                <button class="action-button login-button" type="button" aria-label="Login" (click)="onLoginClick()">
+                    <span class="button-icon">👤</span>
+                    <span class="button-text">{{ isLoggedIn ? currentUserName || 'Account' : 'Login' }}</span>
+                </button>
+                <button class="action-button cart-button" type="button" aria-label="Shopping cart" (click)="onCartClick()">
+                    <span class="button-icon">🛒</span>
+                    <span class="button-text">Cart</span>
+                    <span class="cart-badge" *ngIf="cartItemCount > 0">{{ cartItemCount }}</span>
+                </button>
+                <div class="search-container">
+                    <span class="search-icon">🔍</span>
+                    <input 
+                        type="text" 
+                        class="medieval-search" 
+                        placeholder="Search for beer..."
+                        aria-label="Search beers"
+                    />
+                    <button class="search-button" type="button">
+                        <span>Search</span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <div class="header-ornament bottom-ornament"></div>
+</header>

@@ -1,0 +1,142 @@
+<div class="category-view-container">
+    <!-- Category Header -->
+    <div class="category-header">
+        <div class="results-info">
+            <span class="results-count">{{ filteredBeers.length }} beers found</span>
+        </div>
+    </div>
+
+    <div class="category-content">
+        <!-- Filters Sidebar -->
+        <aside class="filters-sidebar">
+            <div class="filters-header">
+                <h2 class="filters-title">
+                    <span class="filter-icon">🔍</span>
+                    Filters
+                </h2>
+                <button class="clear-filters-button" (click)="clearFilters()" *ngIf="selectedStyles.length > 0 || selectedBrands.length > 0">
+                    Clear All
+                </button>
+            </div>
+
+            <!-- Sort By -->
+            <div class="filter-group">
+                <h3 class="filter-group-title">Sort By</h3>
+                <select class="sort-select" [(ngModel)]="sortBy" (change)="onSortChange()">
+                    <option value="name">Name (A-Z)</option>
+                    <option value="brand">Brand (A-Z)</option>
+                    <option value="price-asc">Price (Low to High)</option>
+                    <option value="price-desc">Price (High to Low)</option>
+                </select>
+            </div>
+
+            <!-- Style Filter -->
+            <div class="filter-group">
+                <h3 class="filter-group-title">Beer Style</h3>
+                <div class="filter-options">
+                    <label *ngFor="let style of filterOptions.styles" class="filter-checkbox">
+                        <input 
+                            type="checkbox" 
+                            [checked]="selectedStyles.includes(style)"
+                            (change)="toggleStyleFilter(style)"
+                        />
+                        <span class="checkbox-label">{{ style }}</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Brand Filter -->
+            <div class="filter-group">
+                <h3 class="filter-group-title">Brand</h3>
+                <div class="filter-options">
+                    <label *ngFor="let brand of filterOptions.brands" class="filter-checkbox">
+                        <input 
+                            type="checkbox" 
+                            [checked]="selectedBrands.includes(brand)"
+                            (change)="toggleBrandFilter(brand)"
+                        />
+                        <span class="checkbox-label">{{ brand }}</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Price Range Filter -->
+            <div class="filter-group">
+                <h3 class="filter-group-title">Price Range</h3>
+                <div class="price-range-inputs">
+                    <div class="price-input-group">
+                        <label class="price-label">Min:</label>
+                        <input 
+                            type="number" 
+                            class="price-input" 
+                            [(ngModel)]="minPrice" 
+                            [min]="filterOptions.priceRange.min"
+                            [max]="maxPrice"
+                            (change)="onPriceChange()"
+                        />
+                        <span class="currency-symbol">₾</span>
+                    </div>
+                    <div class="price-input-group">
+                        <label class="price-label">Max:</label>
+                        <input 
+                            type="number" 
+                            class="price-input" 
+                            [(ngModel)]="maxPrice" 
+                            [min]="minPrice"
+                            [max]="filterOptions.priceRange.max"
+                            (change)="onPriceChange()"
+                        />
+                        <span class="currency-symbol">₾</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Beer Grid -->
+        <main class="beers-grid-container">
+            <div class="beers-grid" *ngIf="filteredBeers.length > 0">
+                <div *ngFor="let beer of filteredBeers" class="beer-tile">
+                    <div class="beer-image-container">
+                        <img [src]="beer.imageUrl" [alt]="beer.brand + ' ' + beer.name" class="beer-image" />
+                        <div class="beer-overlay">
+                            <span class="beer-style">{{ beer.style }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="beer-info">
+                        <h3 class="beer-brand">{{ beer.brand }}</h3>
+                        <p class="beer-name">{{ beer.name }}</p>
+                        
+                        <div class="beer-details">
+                            <div class="beer-country">
+                                <span class="detail-icon">🌍</span>
+                                <span>{{ beer.country }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="beer-footer">
+                            <div class="beer-price">
+                                <span class="currency">₾</span>
+                                <span class="price-value">{{ beer.price.toFixed(2) }}</span>
+                            </div>
+                            <button class="add-to-cart-button" (click)="addToCart(beer)">
+                                <span class="button-icon">🛒</span>
+                                <span>Add to Cart</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- No Results -->
+            <div class="no-results" *ngIf="filteredBeers.length === 0">
+                <span class="no-results-icon">😔</span>
+                <h3 class="no-results-title">No beers found</h3>
+                <p class="no-results-text">Try adjusting your filters to see more results</p>
+                <button class="clear-filters-button-large" (click)="clearFilters()">
+                    Clear All Filters
+                </button>
+            </div>
+        </main>
+    </div>
+</div>
