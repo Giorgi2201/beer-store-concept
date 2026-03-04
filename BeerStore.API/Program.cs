@@ -56,7 +56,7 @@ builder.Services.AddSwaggerGen(options =>
 
 // Configure Database
 builder.Services.AddDbContext<BeerStoreDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Configure JWT Settings
 var jwtSettings = new JwtSettings();

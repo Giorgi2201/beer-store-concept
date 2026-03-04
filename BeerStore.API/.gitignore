@@ -51,9 +51,9 @@ artifacts/
 # ASP.NET Scaffolding
 ScaffoldingReadMe.txt
 
-# Entity Framework Migrations
-**/Migrations/*.cs
-!**/Migrations/Configuration.cs
+# Entity Framework Migrations (commented out - we need migrations in Git for deployment)
+# **/Migrations/*.cs
+# !**/Migrations/Configuration.cs
 
 # Rider
 .idea/

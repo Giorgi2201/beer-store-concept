@@ -40,3 +40,11 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# .NET Core
+BeerStore.API/bin/
+BeerStore.API/obj/
+BeerStore.API/appsettings.Development.json
+*.dll
+*.exe
+*.pdb
