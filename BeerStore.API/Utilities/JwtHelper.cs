@@ -9,7 +9,7 @@ namespace BeerStore.API.Utilities
 {
     public interface IJwtHelper
     {
-        string GenerateToken(User user);
+        string GenerateToken(User user, int? expirationMinutes = null);
         ClaimsPrincipal? ValidateToken(string token);
         int? GetUserIdFromToken(string token);
     }
@@ -23,10 +23,13 @@ namespace BeerStore.API.Utilities
             _jwtSettings = jwtSettings;
         }
 
-        public string GenerateToken(User user)
+        public string GenerateToken(User user, int? expirationMinutes = null)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtSettings.SecretKey);
+
+            // Use provided expiration or default from settings
+            var expiration = expirationMinutes ?? _jwtSettings.ExpirationMinutes;
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -38,7 +41,7 @@ namespace BeerStore.API.Utilities
                     new Claim(ClaimTypes.Surname, user.LastName),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 }),
-                Expires = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationMinutes),
+                Expires = DateTime.UtcNow.AddMinutes(expiration),
                 Issuer = _jwtSettings.Issuer,
                 Audience = _jwtSettings.Audience,
                 SigningCredentials = new SigningCredentials(

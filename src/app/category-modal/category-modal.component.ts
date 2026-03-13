@@ -1,11 +1,6 @@
-import { Component, EventEmitter, Output, Input, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Output, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-interface Category {
-  name: string;
-  icon: string;
-  disabled?: boolean;
-}
+import { ApiService, Category } from '../services/api.service';
 
 export interface CategorySelection {
   name: string;
@@ -20,25 +15,14 @@ export interface CategorySelection {
   templateUrl: './category-modal.component.html',
   styleUrl: './category-modal.component.css'
 })
-export class CategoryModalComponent implements OnInit, OnDestroy, OnChanges {
-  @Input() availableStyles: string[] = [];
+export class CategoryModalComponent implements OnInit, OnDestroy {
   @Output() close = new EventEmitter<void>();
   @Output() selectCategory = new EventEmitter<CategorySelection>();
 
-  mainCategories: Category[] = [
-    { name: 'German Beers 🇩🇪', icon: '🍺' },
-    { name: 'Craft Beers', icon: '🏭' },
-    { name: 'Imported Beers', icon: '🌍' },
-    { name: 'Local / Georgian Beers', icon: '🇬🇪' },
-    { name: 'Seasonal Specials', icon: '🍂' },
-    { name: 'Limited Editions', icon: '⭐' },
-    { name: 'Best Sellers', icon: '🏆' },
-    { name: 'New Arrivals', icon: '🆕' }
-  ];
-
+  mainCategories: Category[] = [];
   styleCategories: Category[] = [];
+  isLoading = true;
 
-  // Style icon mapping
   private styleIconMap: { [key: string]: string } = {
     'Hefeweizen': '🌾',
     'Dark Lager': '🌑',
@@ -47,60 +31,48 @@ export class CategoryModalComponent implements OnInit, OnDestroy, OnChanges {
     'Pilsner': '🍻',
     'Dark Wheat': '🌾',
     'Doppelbock': '☕',
-    'Lagers': '🍻',
-    'Pilsners': '🍺',
-    'IPAs & Pale Ales': '🌿',
-    'Stouts & Porters': '☕',
-    'Wheat Beers': '🌾',
-    'Sour Beers': '🍋',
-    'Belgian Ales': '🇧🇪',
-    'Dark Beers': '🌑',
-    'Light Beers': '☀️'
+    'Lager': '🍺',
+    'IPA': '🌿',
+    'Stout': '☕',
+    'Porter': '🌑',
+    'Wheat Beer': '🌾',
+    'Sour': '🍋',
   };
 
-  ngOnInit() {
-    // Prevent body scrolling when modal is open
-    document.body.style.overflow = 'hidden';
-    this.generateStyleCategories();
-  }
+  constructor(private apiService: ApiService) {}
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['availableStyles'] && !changes['availableStyles'].firstChange) {
-      this.generateStyleCategories();
-    }
+  ngOnInit() {
+    document.body.style.overflow = 'hidden';
+    this.apiService.getCategories().subscribe({
+      next: (categories) => {
+        this.mainCategories = categories.filter(c => c.type === 'main');
+        this.styleCategories = categories.filter(c => c.type === 'style');
+        this.isLoading = false;
+      },
+      error: () => { this.isLoading = false; }
+    });
   }
 
   ngOnDestroy() {
-    // Restore body scrolling when modal is closed
     document.body.style.overflow = '';
   }
 
-  generateStyleCategories() {
-    this.styleCategories = this.availableStyles.map(style => ({
-      name: style,
-      icon: this.styleIconMap[style] || '🍺'
-    }));
+  getStyleIcon(name: string): string {
+    return this.styleIconMap[name] || '🍺';
   }
 
   onClose() {
     this.close.emit();
   }
 
-  onCategoryClick(categoryName: string) {
-    // Determine if this is a style category or main category
-    const isStyleCategory = this.styleCategories.some(c => c.name === categoryName);
-    
+  onCategoryClick(category: Category) {
+    const isStyle = category.type === 'style';
     const selection: CategorySelection = {
-      name: categoryName,
-      type: isStyleCategory ? 'style' : 'main'
+      name: category.name,
+      type: isStyle ? 'style' : 'main',
+      filterType: isStyle ? 'style' : undefined,
+      filterValue: isStyle ? category.name : undefined
     };
-
-    // If it's a style category, add filter information
-    if (isStyleCategory) {
-      selection.filterType = 'style';
-      selection.filterValue = categoryName;
-    }
-
     this.selectCategory.emit(selection);
     this.close.emit();
   }

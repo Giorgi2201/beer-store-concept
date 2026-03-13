@@ -29,6 +29,7 @@ export interface BeerFilters {
   isBestSeller?: boolean;
   isLimitedEdition?: boolean;
   isNewArrival?: boolean;
+  categoryName?: string;
   searchTerm?: string;
   sortBy?: string;
   pageNumber?: number;
@@ -92,6 +93,9 @@ export class ApiService {
       }
       if (filters.isNewArrival !== undefined) {
         params = params.append('isNewArrival', filters.isNewArrival.toString());
+      }
+      if (filters.categoryName) {
+        params = params.append('categoryName', filters.categoryName);
       }
       if (filters.searchTerm) {
         params = params.append('searchTerm', filters.searchTerm);

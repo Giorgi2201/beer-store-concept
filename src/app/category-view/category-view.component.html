@@ -14,9 +14,27 @@
                     <span class="filter-icon">🔍</span>
                     Filters
                 </h2>
-                <button class="clear-filters-button" (click)="clearFilters()" *ngIf="selectedStyles.length > 0 || selectedBrands.length > 0">
+                <button class="clear-filters-button" (click)="clearFilters()"
+                    *ngIf="selectedStyles.length > 0 || selectedBrands.length > 0 || searchTerm">
                     Clear All
                 </button>
+            </div>
+
+            <!-- Search -->
+            <div class="filter-group filter-search-group">
+                <div class="filter-search-wrapper">
+                    <span class="filter-search-icon">{{ isLoading ? '⏳' : '🔍' }}</span>
+                    <input
+                        type="text"
+                        class="filter-search-input"
+                        placeholder="Search beers..."
+                        autocomplete="off"
+                        name="filter-search"
+                        [(ngModel)]="searchTerm"
+                        (ngModelChange)="onSearchTermChange()"
+                    />
+                    <button class="filter-search-clear" *ngIf="searchTerm" (click)="searchTerm = ''; onSearchTermChange()">✕</button>
+                </div>
             </div>
 
             <!-- Sort By -->
@@ -94,12 +112,23 @@
 
         <!-- Beer Grid -->
         <main class="beers-grid-container">
-            <div class="beers-grid" *ngIf="filteredBeers.length > 0">
-                <div *ngFor="let beer of filteredBeers" class="beer-tile">
+            <!-- Loading State -->
+            <div class="loading-state" *ngIf="isLoading">
+                <span class="loading-icon">⏳</span>
+                <p>Loading beers...</p>
+            </div>
+
+            <div class="beers-grid" *ngIf="!isLoading && filteredBeers.length > 0">
+                <div *ngFor="let beer of filteredBeers" class="beer-tile"
+                     [class.cart-added]="addedToCart[beer.id]">
                     <div class="beer-image-container">
                         <img [src]="beer.imageUrl" [alt]="beer.brand + ' ' + beer.name" class="beer-image" />
                         <div class="beer-overlay">
                             <span class="beer-style">{{ beer.style }}</span>
+                        </div>
+                        <!-- Success overlay: fades in and out when item is added -->
+                        <div class="cart-added-check" *ngIf="addedToCart[beer.id]">
+                            <span class="cart-added-check-icon">✓</span>
                         </div>
                     </div>
                     
@@ -119,9 +148,34 @@
                                 <span class="currency">₾</span>
                                 <span class="price-value">{{ beer.price.toFixed(2) }}</span>
                             </div>
-                            <button class="add-to-cart-button" (click)="addToCart(beer)">
-                                <span class="button-icon">🛒</span>
-                                <span>Add to Cart</span>
+
+                            <!-- Quantity controls — shown when beer is already in the cart -->
+                            <div class="card-qty-controls" *ngIf="isLoggedIn && cartItemMap[beer.id]">
+                                <button class="card-qty-btn remove-btn"
+                                    [class.is-remove]="cartItemMap[beer.id].quantity === 1"
+                                    [disabled]="updatingQty[beer.id]"
+                                    (click)="decreaseQty(beer.id)">
+                                    {{ cartItemMap[beer.id].quantity === 1 ? '🗑' : '−' }}
+                                </button>
+                                <span class="card-qty-val">{{ cartItemMap[beer.id].quantity }}</span>
+                                <button class="card-qty-btn"
+                                    [disabled]="updatingQty[beer.id]"
+                                    (click)="increaseQty(beer.id)">+</button>
+                            </div>
+
+                            <!-- Add to Cart button — shown when beer is NOT in the cart -->
+                            <button class="add-to-cart-button"
+                                *ngIf="!isLoggedIn || !cartItemMap[beer.id]"
+                                [class.adding]="addingToCart[beer.id]"
+                                [class.added]="addedToCart[beer.id]"
+                                [disabled]="addingToCart[beer.id] || addedToCart[beer.id]"
+                                (click)="addToCart(beer)">
+                                <span class="button-icon">
+                                    {{ addedToCart[beer.id] ? '✓' : (addingToCart[beer.id] ? '⏳' : '🛒') }}
+                                </span>
+                                <span>
+                                    {{ addedToCart[beer.id] ? 'Added!' : (addingToCart[beer.id] ? 'Adding...' : (isLoggedIn ? 'Add to Cart' : 'Log in to Buy')) }}
+                                </span>
                             </button>
                         </div>
                     </div>
@@ -129,7 +183,7 @@
             </div>
 
             <!-- No Results -->
-            <div class="no-results" *ngIf="filteredBeers.length === 0">
+            <div class="no-results" *ngIf="!isLoading && filteredBeers.length === 0">
                 <span class="no-results-icon">😔</span>
                 <h3 class="no-results-title">No beers found</h3>
                 <p class="no-results-text">Try adjusting your filters to see more results</p>

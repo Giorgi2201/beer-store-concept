@@ -15,7 +15,7 @@ export class LoginModalComponent implements OnInit, OnDestroy {
   // Login form
   email = '';
   password = '';
-  rememberPassword = false;
+  rememberMe = false;
   
   // Signup form
   firstName = '';
@@ -72,7 +72,7 @@ export class LoginModalComponent implements OnInit, OnDestroy {
     this.authService.login({
       email: this.email,
       password: this.password,
-      rememberMe: this.rememberPassword
+      rememberMe: this.rememberMe
     }).subscribe({
       next: () => {
         this.isLoading = false;

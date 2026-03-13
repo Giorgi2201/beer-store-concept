@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent } from './header/header.component';
 import { FooterComponent } from './footer/footer.component';
@@ -6,26 +6,26 @@ import { MainWebsiteComponent } from './main-website/main-website.component';
 import { LoginModalComponent } from './login-modal/login-modal.component';
 import { CategoryModalComponent, CategorySelection } from './category-modal/category-modal.component';
 import { CategoryViewComponent } from './category-view/category-view.component';
+import { UserProfileComponent } from './user-profile/user-profile.component';
 
 export interface InitialFilters {
   styles?: string[];
   brands?: string[];
+  searchTerm?: string;
+  categoryName?: string;
 }
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, HeaderComponent, FooterComponent, MainWebsiteComponent, LoginModalComponent, CategoryModalComponent, CategoryViewComponent],
+  imports: [CommonModule, HeaderComponent, FooterComponent, MainWebsiteComponent, LoginModalComponent, CategoryModalComponent, CategoryViewComponent, UserProfileComponent],
   templateUrl: './app.component.html'
 })
 export class AppComponent {
-  @ViewChild(MainWebsiteComponent) mainWebsite!: MainWebsiteComponent;
-  
   showLoginModal = false;
   showCategoryModal = false;
   showCategoryView = false;
-  availableStyles: string[] = [];
-  
-  // Category view data
+  showProfileView = false;
+
   selectedCategoryName: string = '';
   categoryBeers: any[] = [];
   initialFilters: InitialFilters = {};
@@ -39,10 +39,6 @@ export class AppComponent {
   }
 
   openCategoryModal() {
-    // Get available styles from main website component
-    if (this.mainWebsite) {
-      this.availableStyles = this.mainWebsite.getAvailableStyles();
-    }
     this.showCategoryModal = true;
   }
 
@@ -52,35 +48,51 @@ export class AppComponent {
 
   onCategorySelect(selection: CategorySelection) {
     this.selectedCategoryName = selection.name;
-    
-    // Get beers for the selected category
-    if (this.mainWebsite) {
-      // For now, we'll use bestSellers for all categories
-      // Later you can add logic to filter by category
-      this.categoryBeers = this.mainWebsite.bestSellers;
-    }
-    
-    // Set initial filters based on selection
+    this.categoryBeers = [];
     this.initialFilters = {};
-    
+
     if (selection.type === 'style' && selection.filterValue) {
-      // If a style was selected, pre-select that style filter
       this.initialFilters.styles = [selection.filterValue];
+    } else {
+      this.initialFilters.categoryName = selection.name;
     }
-    
-    // Switch to category view
-    this.showCategoryView = true;
+
+    // Briefly destroy and recreate the category view so ngOnInit always re-runs
+    // (needed when switching categories while already on the category view)
+    this.showCategoryView = false;
+    this.showProfileView = false;
+    setTimeout(() => {
+      this.showCategoryView = true;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 0);
   }
 
   onBackToHome() {
     this.showCategoryView = false;
+    this.showProfileView = false;
     this.selectedCategoryName = '';
     this.categoryBeers = [];
     this.initialFilters = {};
-    // Also close any open modals
     this.showLoginModal = false;
     this.showCategoryModal = false;
-    // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  openProfileView() {
+    this.showProfileView = true;
+    this.showCategoryView = false;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  onSearchAll(searchTerm: string) {
+    this.selectedCategoryName = `Search: "${searchTerm}"`;
+    this.categoryBeers = [];
+    this.initialFilters = { searchTerm };
+    this.showCategoryView = false;
+    this.showProfileView = false;
+    setTimeout(() => {
+      this.showCategoryView = true;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 0);
   }
 }

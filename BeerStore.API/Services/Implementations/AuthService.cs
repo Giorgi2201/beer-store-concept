@@ -3,6 +3,7 @@ using BeerStore.API.Models.Entities;
 using BeerStore.API.Repositories.Interfaces;
 using BeerStore.API.Services.Interfaces;
 using BeerStore.API.Utilities;
+using System.Text.RegularExpressions;
 
 namespace BeerStore.API.Services.Implementations
 {
@@ -12,17 +13,20 @@ namespace BeerStore.API.Services.Implementations
         private readonly ICartRepository _cartRepository;
         private readonly IPasswordHasher _passwordHasher;
         private readonly IJwtHelper _jwtHelper;
+        private readonly IDeliveryService _deliveryService;
 
         public AuthService(
             IUserRepository userRepository,
             ICartRepository cartRepository,
             IPasswordHasher passwordHasher,
-            IJwtHelper jwtHelper)
+            IJwtHelper jwtHelper,
+            IDeliveryService deliveryService)
         {
-            _userRepository = userRepository;
-            _cartRepository = cartRepository;
-            _passwordHasher = passwordHasher;
-            _jwtHelper = jwtHelper;
+            _userRepository  = userRepository;
+            _cartRepository  = cartRepository;
+            _passwordHasher  = passwordHasher;
+            _jwtHelper       = jwtHelper;
+            _deliveryService = deliveryService;
         }
 
         public async Task<AuthResponseDto> RegisterAsync(RegisterDto model)
@@ -97,11 +101,10 @@ namespace BeerStore.API.Services.Implementations
             user.LastLoginAt = DateTime.UtcNow;
             await _userRepository.UpdateAsync(user);
 
-            // Generate JWT token
-            var token = _jwtHelper.GenerateToken(user);
-            var expiration = model.RememberMe 
-                ? DateTime.UtcNow.AddDays(30) 
-                : DateTime.UtcNow.AddHours(24);
+            // Generate JWT token with extended expiration if RememberMe is checked
+            var expirationMinutes = model.RememberMe ? 20160 : 1440; // 2 weeks or 24 hours
+            var token = _jwtHelper.GenerateToken(user, expirationMinutes);
+            var expiration = DateTime.UtcNow.AddMinutes(expirationMinutes);
 
             return new AuthResponseDto
             {
@@ -119,15 +122,82 @@ namespace BeerStore.API.Services.Implementations
             var user = await _userRepository.GetByIdAsync(userId);
             if (user == null) return null;
 
-            return new UserDto
-            {
-                Id = user.Id,
-                Email = user.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                CreatedAt = user.CreatedAt,
-                LastLoginAt = user.LastLoginAt
-            };
+            return MapToDto(user);
         }
+
+        public async Task<UserDto> UpdateAddressAsync(int userId, UpdateAddressDto model)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null) throw new ArgumentException("User not found");
+
+            // Validate delivery zone server-side so clients cannot bypass it
+            if (model.Latitude.HasValue && model.Longitude.HasValue)
+            {
+                var quote = await _deliveryService.GetDeliveryQuoteAsync(
+                    model.Latitude.Value, model.Longitude.Value);
+
+                if (!quote.InZone)
+                    throw new ArgumentException("The selected address is outside our delivery zone.");
+            }
+
+            user.AddressLine = model.AddressLine;
+            user.Phone       = model.Phone;
+            user.Latitude    = model.Latitude;
+            user.Longitude   = model.Longitude;
+
+            user = await _userRepository.UpdateAsync(user);
+            return MapToDto(user);
+        }
+
+        public async Task<UserDto> UpdateProfileAsync(int userId, UpdateProfileDto model)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null) throw new ArgumentException("User not found");
+
+            if (string.IsNullOrWhiteSpace(model.FirstName))
+                throw new ArgumentException("First name is required.");
+            if (string.IsNullOrWhiteSpace(model.LastName))
+                throw new ArgumentException("Last name is required.");
+
+            user.FirstName = model.FirstName.Trim();
+            user.LastName  = model.LastName.Trim();
+
+            user = await _userRepository.UpdateAsync(user);
+            return MapToDto(user);
+        }
+
+        public async Task ChangePasswordAsync(int userId, ChangePasswordDto model)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null) throw new ArgumentException("User not found");
+
+            if (!_passwordHasher.VerifyPassword(model.CurrentPassword, user.PasswordHash))
+                throw new UnauthorizedAccessException("Current password is incorrect.");
+
+            // Enforce complexity rules server-side
+            if (model.NewPassword.Length < 8)
+                throw new ArgumentException("Password must be at least 8 characters.");
+            if (!Regex.IsMatch(model.NewPassword, "[A-Z]"))
+                throw new ArgumentException("Password must contain at least one uppercase letter.");
+            if (!Regex.IsMatch(model.NewPassword, "[0-9]"))
+                throw new ArgumentException("Password must contain at least one number.");
+
+            user.PasswordHash = _passwordHasher.HashPassword(model.NewPassword);
+            await _userRepository.UpdateAsync(user);
+        }
+
+        private static UserDto MapToDto(User user) => new()
+        {
+            Id = user.Id,
+            Email = user.Email,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            CreatedAt = user.CreatedAt,
+            LastLoginAt = user.LastLoginAt,
+            AddressLine = user.AddressLine,
+            Phone = user.Phone,
+            Latitude = user.Latitude,
+            Longitude = user.Longitude
+        };
     }
 }

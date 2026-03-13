@@ -28,26 +28,133 @@
                 </a></li>
             </ul>
             <div class="header-actions">
-                <button class="action-button login-button" type="button" aria-label="Login" (click)="onLoginClick()">
-                    <span class="button-icon">👤</span>
-                    <span class="button-text">{{ isLoggedIn ? currentUserName || 'Account' : 'Login' }}</span>
-                </button>
-                <button class="action-button cart-button" type="button" aria-label="Shopping cart" (click)="onCartClick()">
-                    <span class="button-icon">🛒</span>
-                    <span class="button-text">Cart</span>
-                    <span class="cart-badge" *ngIf="cartItemCount > 0">{{ cartItemCount }}</span>
-                </button>
+                <div class="user-menu-container">
+                    <button class="action-button login-button" type="button" aria-label="Login" (click)="onLoginClick()">
+                        <img *ngIf="isLoggedIn && profilePicture" [src]="profilePicture" alt="Profile" class="header-profile-picture">
+                        <span *ngIf="!isLoggedIn || !profilePicture" class="button-icon">👤</span>
+                        <span class="button-text">{{ isLoggedIn ? currentUserName || 'Account' : 'Login' }}</span>
+                        <span class="dropdown-arrow" *ngIf="isLoggedIn">▼</span>
+                    </button>
+                    <div class="user-dropdown" *ngIf="isLoggedIn && showUserDropdown">
+                        <button class="dropdown-item" (click)="onProfileClick()">
+                            <span class="dropdown-icon">👤</span>
+                            <span>Profile</span>
+                        </button>
+                        <button class="dropdown-item logout-item" (click)="onLogout()">
+                            <span class="dropdown-icon">🚪</span>
+                            <span>Log Out</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="cart-menu-container">
+                    <button class="action-button cart-button" type="button" aria-label="Shopping cart" (click)="onCartClick()">
+                        <span class="button-icon">🛒</span>
+                        <span class="button-text">Cart</span>
+                        <span class="cart-badge" *ngIf="cartItemCount > 0">{{ cartItemCount }}</span>
+                    </button>
+                    <!-- Cart panel -->
+                    <div class="cart-panel" *ngIf="isLoggedIn && showCart">
+                        <div class="cart-panel-header">
+                            <span>🛒 Your Cart</span>
+                            <button class="cart-close-btn" (click)="showCart = false">✕</button>
+                        </div>
+                        <div class="cart-empty" *ngIf="!cartItems || cartItems.length === 0">
+                            <span>🍺</span>
+                            <span>Your cart is empty</span>
+                        </div>
+                        <div class="cart-items-list" *ngIf="cartItems && cartItems.length > 0">
+                            <div class="cart-item" *ngFor="let item of cartItems">
+                                <img [src]="item.beerImageUrl" [alt]="item.beerName" class="cart-item-img">
+                                <div class="cart-item-info">
+                                    <div class="cart-item-name">{{ item.beerName }}</div>
+                                    <div class="cart-item-brand">{{ item.beerBrand }}</div>
+                                    <div class="cart-item-qty-row">
+                                        <button class="qty-btn" (click)="decreaseQty(item)">−</button>
+                                        <span class="qty-val">{{ item.quantity }}</span>
+                                        <button class="qty-btn" (click)="increaseQty(item)">+</button>
+                                    </div>
+                                </div>
+                                <div class="cart-item-price">
+                                    <span>₾{{ item.subtotal.toFixed(2) }}</span>
+                                    <button class="remove-btn" (click)="removeItem(item)">🗑</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cart-totals" *ngIf="cartItems && cartItems.length > 0">
+                            <div class="cart-total-row">
+                                <span>Subtotal</span>
+                                <span>₾{{ cartTotal.toFixed(2) }}</span>
+                            </div>
+                            <div class="cart-total-row delivery-store-row" *ngIf="nearestStoreName">
+                                <span>From</span>
+                                <span>{{ nearestStoreName }}</span>
+                            </div>
+                            <div class="cart-total-row delivery-row" *ngIf="deliveryCost !== null">
+                                <span>Delivery ({{ deliveryDistanceKm }}km)</span>
+                                <span>₾{{ deliveryCost.toFixed(2) }}</span>
+                            </div>
+                            <div class="cart-total-row delivery-row no-address" *ngIf="deliveryCost === null">
+                                <span>Delivery</span>
+                                <span class="set-address-hint" (click)="onProfileClick()">Set address →</span>
+                            </div>
+                            <div class="cart-total-row grand-total">
+                                <span>Total</span>
+                                <span>₾{{ grandTotal.toFixed(2) }}</span>
+                            </div>
+                            <div class="cart-actions-row">
+                                <button class="clear-cart-btn" (click)="onClearCart()">
+                                    🗑 Clear cart
+                                </button>
+                                <button class="checkout-btn">
+                                    Proceed to Checkout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="search-container">
-                    <span class="search-icon">🔍</span>
-                    <input 
-                        type="text" 
-                        class="medieval-search" 
+                    <!-- Hidden dummy inputs stop Chrome password manager from targeting the real search field -->
+                    <input type="text"     aria-hidden="true" tabindex="-1" style="position:absolute;width:0;height:0;opacity:0;pointer-events:none;">
+                    <input type="password" aria-hidden="true" tabindex="-1" style="position:absolute;width:0;height:0;opacity:0;pointer-events:none;">
+                    <span class="search-icon">{{ isSearching ? '⏳' : '🔍' }}</span>
+                    <input
+                        type="text"
+                        class="medieval-search"
                         placeholder="Search for beer..."
                         aria-label="Search beers"
+                        autocomplete="new-password"
+                        name="beer-search-x"
+                        id="beer-search-x"
+                        [(ngModel)]="searchQuery"
+                        (ngModelChange)="onSearchInput()"
+                        (keydown)="onSearchKeydown($event)"
                     />
-                    <button class="search-button" type="button">
+                    <button class="search-button" type="button" (click)="onShowAllResults()">
                         <span>Search</span>
                     </button>
+
+                    <!-- Search dropdown -->
+                    <div class="search-dropdown" *ngIf="showSearchDropdown">
+                        <div class="search-result-row" *ngFor="let beer of searchResults">
+                            <img [src]="beer.imageUrl" [alt]="beer.name" class="search-result-img">
+                            <div class="search-result-info">
+                                <span class="search-result-name">{{ beer.name }}</span>
+                                <span class="search-result-meta">{{ beer.brand }} · {{ beer.style }}</span>
+                            </div>
+                            <div class="search-result-right">
+                                <span class="search-result-price">₾{{ beer.price.toFixed(2) }}</span>
+                                <button class="search-add-btn" (click)="onSearchAddToCart(beer, $event)">
+                                    + Cart
+                                </button>
+                            </div>
+                        </div>
+                        <div class="search-no-results" *ngIf="searchResults.length === 0 && !isSearching">
+                            No beers found for "{{ searchQuery }}"
+                        </div>
+                        <button class="search-show-all" (click)="onShowAllResults()" *ngIf="searchResults.length > 0">
+                            Show all results for "{{ searchQuery }}" →
+                        </button>
+                    </div>
                 </div>
             </div>
         </nav>

@@ -1,7 +1,10 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Beer } from '../services/api.service';
+import { Subject, Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
+import { Beer, ApiService } from '../services/api.service';
+import { AuthService } from '../services/auth.service';
+import { CartService, CartItem } from '../services/cart.service';
 
 interface FilterOptions {
   styles: string[];
@@ -12,6 +15,8 @@ interface FilterOptions {
 export interface InitialFilters {
   styles?: string[];
   brands?: string[];
+  searchTerm?: string;
+  categoryName?: string;
 }
 
 @Component({
@@ -20,57 +25,135 @@ export interface InitialFilters {
   templateUrl: './category-view.component.html',
   styleUrl: './category-view.component.css'
 })
-export class CategoryViewComponent implements OnInit {
+export class CategoryViewComponent implements OnInit, OnDestroy {
   @Input() categoryName: string = '';
   @Input() beers: Beer[] = [];
   @Input() initialFilters: InitialFilters = {};
   @Output() openLogin = new EventEmitter<void>();
 
   filteredBeers: Beer[] = [];
+  private allBeers: Beer[] = [];
   filterOptions: FilterOptions = {
     styles: [],
     brands: [],
     priceRange: { min: 0, max: 100 }
   };
 
-  // Active filters
   selectedStyles: string[] = [];
   selectedBrands: string[] = [];
   minPrice: number = 0;
   maxPrice: number = 100;
   sortBy: string = 'name';
+  searchTerm = '';
 
   isLoggedIn = false;
+  isLoading = false;
+  addingToCart: { [beerId: number]: boolean } = {};
+  addedToCart:  { [beerId: number]: boolean } = {};
+  cartItemMap:  { [beerId: number]: CartItem } = {};
+  updatingQty:  { [beerId: number]: boolean } = {};
+
+  private searchSubject$ = new Subject<string>();
+  private authSub?: Subscription;
+  private cartSub?: Subscription;
+
+  constructor(
+    private apiService: ApiService,
+    private authService: AuthService,
+    private cartService: CartService
+  ) {}
 
   ngOnInit() {
-    this.initializeFilters();
+    this.authSub = this.authService.isAuthenticated$.subscribe(auth => {
+      this.isLoggedIn = auth;
+      if (auth) {
+        // Ensure cart data is loaded so quantity controls show immediately
+        this.cartService.getCart().subscribe();
+      }
+    });
+
+    // Keep cartItemMap in sync with the shared cart BehaviorSubject
+    this.cartSub = this.cartService.cart$.subscribe(cart => {
+      this.cartItemMap = {};
+      if (cart?.items) {
+        cart.items.forEach(item => { this.cartItemMap[item.beerId] = item; });
+      }
+    });
+
+    // Apply initial filter selections before loading data
     this.applyInitialFilters();
+
+    if (this.beers.length > 0) {
+      // Beers were pre-loaded (legacy path)
+      this.allBeers = [...this.beers];
+      this.initializeFilters();
+      this.applyFilters();
+    } else {
+      // Fetch from API using categoryName, searchTerm, or just load all
+      this.loadFromApi(this.initialFilters.searchTerm || '');
+    }
+
+    this.searchSubject$.pipe(
+      debounceTime(500),
+      distinctUntilChanged()
+    ).subscribe(term => {
+      this.loadFromApi(term);
+    });
+  }
+
+  ngOnDestroy() {
+    this.searchSubject$.complete();
+    this.authSub?.unsubscribe();
+    this.cartSub?.unsubscribe();
+  }
+
+  private loadFromApi(searchTerm: string) {
+    this.isLoading = true;
+    this.apiService.getBeers({
+      searchTerm: searchTerm || undefined,
+      categoryName: this.initialFilters.categoryName || undefined,
+      pageSize: 200
+    }).subscribe({
+      next: (result) => {
+        this.allBeers = result.data;
+        this.beers = result.data;
+        this.initializeFilters();
+        this.applyFilters();
+        this.isLoading = false;
+      },
+      error: () => { this.isLoading = false; }
+    });
+  }
+
+  onSearchTermChange() {
     this.applyFilters();
+    this.searchSubject$.next(this.searchTerm);
   }
 
   initializeFilters() {
-    // Extract unique styles
-    this.filterOptions.styles = [...new Set(this.beers.map(b => b.style))].sort();
-    
-    // Extract unique brands
-    this.filterOptions.brands = [...new Set(this.beers.map(b => b.brand))].sort();
-    
-    // Calculate price range
-    const prices = this.beers.map(b => b.price);
-    this.filterOptions.priceRange.min = Math.floor(Math.min(...prices));
-    this.filterOptions.priceRange.max = Math.ceil(Math.max(...prices));
-    
-    this.minPrice = this.filterOptions.priceRange.min;
-    this.maxPrice = this.filterOptions.priceRange.max;
+    const source = this.allBeers.length ? this.allBeers : this.beers;
+
+    this.filterOptions.styles = [...new Set(source.map(b => b.style))].filter(Boolean).sort();
+    this.filterOptions.brands = [...new Set(source.map(b => b.brand))].filter(Boolean).sort();
+
+    if (source.length) {
+      const prices = source.map(b => b.price);
+      this.filterOptions.priceRange.min = Math.floor(Math.min(...prices));
+      this.filterOptions.priceRange.max = Math.ceil(Math.max(...prices));
+
+      // Only reset price range if not already set by the user
+      if (this.minPrice === 0 && this.maxPrice === 100) {
+        this.minPrice = this.filterOptions.priceRange.min;
+        this.maxPrice = this.filterOptions.priceRange.max;
+      }
+    }
   }
 
   applyInitialFilters() {
-    // Apply any initial filters passed from the parent component
-    if (this.initialFilters.styles && this.initialFilters.styles.length > 0) {
+    if (this.initialFilters.styles?.length) {
       this.selectedStyles = [...this.initialFilters.styles];
     }
-    
-    if (this.initialFilters.brands && this.initialFilters.brands.length > 0) {
+    if (this.initialFilters.brands?.length) {
       this.selectedBrands = [...this.initialFilters.brands];
     }
   }
@@ -102,28 +185,30 @@ export class CategoryViewComponent implements OnInit {
   clearFilters() {
     this.selectedStyles = [];
     this.selectedBrands = [];
+    this.searchTerm = '';
     this.minPrice = this.filterOptions.priceRange.min;
     this.maxPrice = this.filterOptions.priceRange.max;
     this.applyFilters();
   }
 
   applyFilters() {
-    this.filteredBeers = this.beers.filter(beer => {
-      // Style filter
+    const term = this.searchTerm.trim().toLowerCase();
+
+    this.filteredBeers = this.allBeers.filter(beer => {
+      if (term && !beer.name.toLowerCase().includes(term)
+               && !beer.brand.toLowerCase().includes(term)
+               && !beer.style.toLowerCase().includes(term)) {
+        return false;
+      }
       if (this.selectedStyles.length > 0 && !this.selectedStyles.includes(beer.style)) {
         return false;
       }
-      
-      // Brand filter
       if (this.selectedBrands.length > 0 && !this.selectedBrands.includes(beer.brand)) {
         return false;
       }
-      
-      // Price filter
       if (beer.price < this.minPrice || beer.price > this.maxPrice) {
         return false;
       }
-      
       return true;
     });
 
@@ -154,8 +239,44 @@ export class CategoryViewComponent implements OnInit {
   addToCart(beer: Beer) {
     if (!this.isLoggedIn) {
       this.openLogin.emit();
-    } else {
-      // TODO: Add cart logic here
+      return;
     }
+    this.addingToCart[beer.id] = true;
+    this.cartService.addToCart(beer.id, 1).subscribe({
+      next: () => {
+        this.addingToCart[beer.id] = false;
+        this.addedToCart[beer.id]  = true;
+        setTimeout(() => { this.addedToCart[beer.id] = false; }, 1600);
+      },
+      error: (err) => {
+        this.addingToCart[beer.id] = false;
+        if (err.status === 401) {
+          this.openLogin.emit();
+        }
+      }
+    });
+  }
+
+  increaseQty(beerId: number) {
+    const item = this.cartItemMap[beerId];
+    if (!item || this.updatingQty[beerId]) return;
+    this.updatingQty[beerId] = true;
+    this.cartService.updateCartItem(item.id, item.quantity + 1).subscribe({
+      next: () => { this.updatingQty[beerId] = false; },
+      error: () => { this.updatingQty[beerId] = false; }
+    });
+  }
+
+  decreaseQty(beerId: number) {
+    const item = this.cartItemMap[beerId];
+    if (!item || this.updatingQty[beerId]) return;
+    this.updatingQty[beerId] = true;
+    const action = item.quantity <= 1
+      ? this.cartService.removeFromCart(item.id)
+      : this.cartService.updateCartItem(item.id, item.quantity - 1);
+    action.subscribe({
+      next: () => { this.updatingQty[beerId] = false; },
+      error: () => { this.updatingQty[beerId] = false; }
+    });
   }
 }

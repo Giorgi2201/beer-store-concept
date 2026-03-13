@@ -20,50 +20,55 @@
                     Browse Categories
                     <span class="title-ornament">⚜</span>
                 </h2>
-                
-                <!-- Main Categories Section -->
-                <section class="categories-section">
-                    <h3 class="section-title">
-                        <span class="section-icon">🏰</span>
-                        Main Categories
-                    </h3>
-                    <div class="categories-grid">
-                        <button 
-                            *ngFor="let category of mainCategories"
-                            class="category-button"
-                            [class.disabled]="category.disabled"
-                            (click)="!category.disabled && onCategoryClick(category.name)"
-                            [attr.aria-label]="category.name"
-                        >
-                            <span class="category-icon">{{ category.icon }}</span>
-                            <span class="category-name">{{ category.name }}</span>
-                        </button>
-                    </div>
-                </section>
 
-                <div class="section-divider">
-                    <span class="divider-ornament">❧</span>
+                <!-- Loading -->
+                <div *ngIf="isLoading" class="modal-loading">
+                    <span>Loading categories...</span>
                 </div>
 
-                <!-- By Style Section -->
-                <section class="categories-section">
-                    <h3 class="section-title">
-                        <span class="section-icon">🍺</span>
-                        By Style
-                    </h3>
-                    <div class="categories-grid">
-                        <button 
-                            *ngFor="let category of styleCategories"
-                            class="category-button"
-                            [class.disabled]="category.disabled"
-                            (click)="!category.disabled && onCategoryClick(category.name)"
-                            [attr.aria-label]="category.name"
-                        >
-                            <span class="category-icon">{{ category.icon }}</span>
-                            <span class="category-name">{{ category.name }}</span>
-                        </button>
+                <ng-container *ngIf="!isLoading">
+                    <!-- Main Categories Section -->
+                    <section class="categories-section">
+                        <h3 class="section-title">
+                            <span class="section-icon">🏰</span>
+                            Main Categories
+                        </h3>
+                        <div class="categories-grid">
+                            <button 
+                                *ngFor="let category of mainCategories"
+                                class="category-button"
+                                (click)="onCategoryClick(category)"
+                                [attr.aria-label]="category.name"
+                            >
+                                <span class="category-icon">{{ category.icon }}</span>
+                                <span class="category-name">{{ category.name }}</span>
+                            </button>
+                        </div>
+                    </section>
+
+                    <div class="section-divider">
+                        <span class="divider-ornament">❧</span>
                     </div>
-                </section>
+
+                    <!-- By Style Section -->
+                    <section class="categories-section">
+                        <h3 class="section-title">
+                            <span class="section-icon">🍺</span>
+                            By Style
+                        </h3>
+                        <div class="categories-grid">
+                            <button 
+                                *ngFor="let category of styleCategories"
+                                class="category-button"
+                                (click)="onCategoryClick(category)"
+                                [attr.aria-label]="category.name"
+                            >
+                                <span class="category-icon">{{ getStyleIcon(category.name) }}</span>
+                                <span class="category-name">{{ category.name }}</span>
+                            </button>
+                        </div>
+                    </section>
+                </ng-container>
             </div>
         </div>
     </div>

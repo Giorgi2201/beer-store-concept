@@ -1,6 +1,8 @@
-<app-header (openLogin)="openLoginModal()" (openCategories)="openCategoryModal()" (goHome)="onBackToHome()"></app-header>
+<app-header (openLogin)="openLoginModal()" (openCategories)="openCategoryModal()" (goHome)="onBackToHome()" (openProfile)="openProfileView()" (searchAll)="onSearchAll($event)"></app-header>
 
-@if (!showCategoryView) {
+@if (showProfileView) {
+  <app-user-profile (back)="onBackToHome()"></app-user-profile>
+} @else if (!showCategoryView) {
   <app-main-website (openLogin)="openLoginModal()"></app-main-website>
 } @else {
   <app-category-view 
@@ -19,7 +21,6 @@
 
 @if (showCategoryModal) {
   <app-category-modal 
-    [availableStyles]="availableStyles"
     (close)="closeCategoryModal()" 
     (selectCategory)="onCategorySelect($event)">
   </app-category-modal>

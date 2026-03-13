@@ -63,6 +63,12 @@ namespace BeerStore.API.Repositories.Implementations
                 query = query.Where(b => b.IsNewArrival == filters.IsNewArrival.Value);
             }
 
+            if (!string.IsNullOrWhiteSpace(filters.CategoryName))
+            {
+                var catName = filters.CategoryName;
+                query = query.Where(b => b.BeerCategories.Any(bc => bc.Category.Name == catName));
+            }
+
             if (!string.IsNullOrWhiteSpace(filters.SearchTerm))
             {
                 var searchTerm = filters.SearchTerm.ToLower();

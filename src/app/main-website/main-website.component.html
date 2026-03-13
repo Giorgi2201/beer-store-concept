@@ -138,11 +138,16 @@
         </div>
 
         <div class="beer-grid">
-            <div *ngFor="let beer of getCurrentBeers()" class="beer-tile">
+            <div *ngFor="let beer of getCurrentBeers()" class="beer-tile"
+                 [class.cart-added]="addedToCart[beer.id]">
                 <div class="beer-image-container">
                     <img [src]="beer.imageUrl" [alt]="beer.brand + ' ' + beer.name" class="beer-image" />
                     <div class="beer-overlay">
                         <span class="beer-style">{{ beer.style }}</span>
+                    </div>
+                    <!-- Success overlay -->
+                    <div class="cart-added-check" *ngIf="addedToCart[beer.id]">
+                        <span class="cart-added-check-icon">✓</span>
                     </div>
                 </div>
                 
@@ -162,9 +167,34 @@
                             <span class="currency">₾</span>
                             <span class="price-value">{{ beer.price.toFixed(2) }}</span>
                         </div>
-                        <button class="add-to-cart-button" (click)="addToCart(beer)">
-                            <span class="button-icon">🛒</span>
-                            <span>Add to Cart</span>
+
+                        <!-- Quantity controls — shown when beer is already in the cart -->
+                        <div class="card-qty-controls" *ngIf="isLoggedIn && cartItemMap[beer.id]">
+                            <button class="card-qty-btn"
+                                [class.is-remove]="cartItemMap[beer.id].quantity === 1"
+                                [disabled]="updatingQty[beer.id]"
+                                (click)="decreaseQty(beer.id)">
+                                {{ cartItemMap[beer.id].quantity === 1 ? '🗑' : '−' }}
+                            </button>
+                            <span class="card-qty-val">{{ cartItemMap[beer.id].quantity }}</span>
+                            <button class="card-qty-btn"
+                                [disabled]="updatingQty[beer.id]"
+                                (click)="increaseQty(beer.id)">+</button>
+                        </div>
+
+                        <!-- Add to Cart button — shown when beer is NOT in the cart -->
+                        <button class="add-to-cart-button"
+                            *ngIf="!isLoggedIn || !cartItemMap[beer.id]"
+                            [class.adding]="addingToCart[beer.id]"
+                            [class.added]="addedToCart[beer.id]"
+                            [disabled]="addingToCart[beer.id] || addedToCart[beer.id]"
+                            (click)="addToCart(beer)">
+                            <span class="button-icon">
+                                {{ addedToCart[beer.id] ? '✓' : (addingToCart[beer.id] ? '⏳' : '🛒') }}
+                            </span>
+                            <span>
+                                {{ addedToCart[beer.id] ? 'Added!' : (addingToCart[beer.id] ? 'Adding...' : (isLoggedIn ? 'Add to Cart' : 'Log in to Buy')) }}
+                            </span>
                         </button>
                     </div>
                 </div>

@@ -2,7 +2,8 @@ import { Component, OnInit, OnDestroy, EventEmitter, Output } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { ApiService, Beer } from '../services/api.service';
 import { AuthService } from '../services/auth.service';
-import { CartService } from '../services/cart.service';
+import { CartService, CartItem } from '../services/cart.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-main-website',
@@ -20,6 +21,13 @@ export class MainWebsiteComponent implements OnInit, OnDestroy {
   
   // Beer catalog data
   bestSellers: Beer[] = [];
+  addingToCart: { [beerId: number]: boolean } = {};
+  addedToCart:  { [beerId: number]: boolean } = {};
+  cartItemMap:  { [beerId: number]: CartItem } = {};
+  updatingQty:  { [beerId: number]: boolean } = {};
+
+  private cartSub?: Subscription;
+  private authSub?: Subscription;
 
   constructor(
     private apiService: ApiService,
@@ -31,9 +39,18 @@ export class MainWebsiteComponent implements OnInit, OnDestroy {
     this.startQuoteRotation();
     this.loadBestSellers();
 
-    // Subscribe to auth status
-    this.authService.isAuthenticated$.subscribe(isAuth => {
+    this.authSub = this.authService.isAuthenticated$.subscribe(isAuth => {
       this.isLoggedIn = isAuth;
+      if (isAuth) {
+        this.cartService.getCart().subscribe();
+      }
+    });
+
+    this.cartSub = this.cartService.cart$.subscribe(cart => {
+      this.cartItemMap = {};
+      if (cart?.items) {
+        cart.items.forEach(item => { this.cartItemMap[item.beerId] = item; });
+      }
     });
   }
 
@@ -74,6 +91,8 @@ export class MainWebsiteComponent implements OnInit, OnDestroy {
     if (this.intervalId) {
       clearInterval(this.intervalId);
     }
+    this.cartSub?.unsubscribe();
+    this.authSub?.unsubscribe();
   }
 
   startQuoteRotation() {
@@ -125,19 +144,44 @@ export class MainWebsiteComponent implements OnInit, OnDestroy {
       this.openLogin.emit();
       return;
     }
+    if (this.addingToCart[beer.id] || this.addedToCart[beer.id]) return;
 
+    this.addingToCart[beer.id] = true;
     this.cartService.addToCart(beer.id, 1).subscribe({
       next: () => {
-        alert(`${beer.name} added to cart!`);
+        this.addingToCart[beer.id] = false;
+        this.addedToCart[beer.id]  = true;
+        setTimeout(() => { this.addedToCart[beer.id] = false; }, 1600);
       },
       error: (err) => {
-        console.error('Error adding to cart:', err);
+        this.addingToCart[beer.id] = false;
         if (err.status === 401) {
           this.openLogin.emit();
-        } else {
-          alert('Failed to add item to cart. Please try again.');
         }
       }
+    });
+  }
+
+  increaseQty(beerId: number) {
+    const item = this.cartItemMap[beerId];
+    if (!item || this.updatingQty[beerId]) return;
+    this.updatingQty[beerId] = true;
+    this.cartService.updateCartItem(item.id, item.quantity + 1).subscribe({
+      next: () => { this.updatingQty[beerId] = false; },
+      error: () => { this.updatingQty[beerId] = false; }
+    });
+  }
+
+  decreaseQty(beerId: number) {
+    const item = this.cartItemMap[beerId];
+    if (!item || this.updatingQty[beerId]) return;
+    this.updatingQty[beerId] = true;
+    const action = item.quantity <= 1
+      ? this.cartService.removeFromCart(item.id)
+      : this.cartService.updateCartItem(item.id, item.quantity - 1);
+    action.subscribe({
+      next: () => { this.updatingQty[beerId] = false; },
+      error: () => { this.updatingQty[beerId] = false; }
     });
   }
 }

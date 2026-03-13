@@ -32,6 +32,17 @@ namespace BeerStore.API.Models.Entities
 
         public DateTime? LastLoginAt { get; set; }
 
+        // Delivery address
+        [MaxLength(500)]
+        public string? AddressLine { get; set; }
+
+        [MaxLength(100)]
+        public string? Phone { get; set; }
+
+        public double? Latitude { get; set; }
+
+        public double? Longitude { get; set; }
+
         // Navigation properties
         public virtual Cart? Cart { get; set; }
         public virtual ICollection<Order> Orders { get; set; } = new List<Order>();

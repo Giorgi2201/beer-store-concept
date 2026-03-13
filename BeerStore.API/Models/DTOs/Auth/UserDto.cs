@@ -8,5 +8,9 @@ namespace BeerStore.API.Models.DTOs.Auth
         public string LastName { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
         public DateTime? LastLoginAt { get; set; }
+        public string? AddressLine { get; set; }
+        public string? Phone { get; set; }
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
     }
 }

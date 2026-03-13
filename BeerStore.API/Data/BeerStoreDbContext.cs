@@ -10,6 +10,7 @@ namespace BeerStore.API.Data
         }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<Store> Stores { get; set; }
         public DbSet<Beer> Beers { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<BeerCategory> BeerCategories { get; set; }

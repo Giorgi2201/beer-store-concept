@@ -108,6 +108,7 @@ builder.Services.AddScoped<IBeerRepository, BeerRepository>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
 
 // Register Services
+builder.Services.AddScoped<IDeliveryService, DeliveryService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IBeerService, BeerService>();
 builder.Services.AddScoped<ICartService, CartService>();
@@ -131,7 +132,11 @@ if (app.Environment.IsDevelopment())
 // Use custom error handling middleware
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
-app.UseHttpsRedirection();
+// Only use HTTPS redirection in production
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseCors("BeerStorePolicy");
 
