@@ -1,75 +1,63 @@
 <div class="modal-overlay" (click)="onClose()">
-    <div class="modal-container" (click)="$event.stopPropagation()">
-        <div class="modal-frame">
-            <div class="frame-corner top-left"></div>
-            <div class="frame-corner top-right"></div>
-            <div class="frame-corner bottom-left"></div>
-            <div class="frame-corner bottom-right"></div>
-            <div class="frame-ornament top-ornament"></div>
-            <div class="frame-ornament bottom-ornament"></div>
-            <div class="frame-ornament left-ornament"></div>
-            <div class="frame-ornament right-ornament"></div>
-            
-            <button class="close-button" (click)="onClose()" aria-label="Close modal">
-                <span class="close-icon">✕</span>
-            </button>
-            
-            <div class="modal-content">
-                <h2 class="modal-title">
-                    <span class="title-ornament">⚜</span>
-                    Browse Categories
-                    <span class="title-ornament">⚜</span>
-                </h2>
+  <div class="modal-dialog" (click)="$event.stopPropagation()">
 
-                <!-- Loading -->
-                <div *ngIf="isLoading" class="modal-loading">
-                    <span>Loading categories...</span>
-                </div>
-
-                <ng-container *ngIf="!isLoading">
-                    <!-- Main Categories Section -->
-                    <section class="categories-section">
-                        <h3 class="section-title">
-                            <span class="section-icon">🏰</span>
-                            Main Categories
-                        </h3>
-                        <div class="categories-grid">
-                            <button 
-                                *ngFor="let category of mainCategories"
-                                class="category-button"
-                                (click)="onCategoryClick(category)"
-                                [attr.aria-label]="category.name"
-                            >
-                                <span class="category-icon">{{ category.icon }}</span>
-                                <span class="category-name">{{ category.name }}</span>
-                            </button>
-                        </div>
-                    </section>
-
-                    <div class="section-divider">
-                        <span class="divider-ornament">❧</span>
-                    </div>
-
-                    <!-- By Style Section -->
-                    <section class="categories-section">
-                        <h3 class="section-title">
-                            <span class="section-icon">🍺</span>
-                            By Style
-                        </h3>
-                        <div class="categories-grid">
-                            <button 
-                                *ngFor="let category of styleCategories"
-                                class="category-button"
-                                (click)="onCategoryClick(category)"
-                                [attr.aria-label]="category.name"
-                            >
-                                <span class="category-icon">{{ getStyleIcon(category.name) }}</span>
-                                <span class="category-name">{{ category.name }}</span>
-                            </button>
-                        </div>
-                    </section>
-                </ng-container>
-            </div>
-        </div>
+    <!-- ── Head ─────────────────────────────────────────────── -->
+    <div class="dialog-head">
+      <div>
+        <h2 class="dialog-title">Browse Categories</h2>
+        <p class="dialog-sub">Find exactly what you're looking for</p>
+      </div>
+      <button class="dialog-close-btn" (click)="onClose()" aria-label="Close">✕</button>
     </div>
+
+    <!-- ── Body ─────────────────────────────────────────────── -->
+    <div class="dialog-body">
+
+      <!-- Loading state -->
+      <div *ngIf="isLoading" class="dialog-loading">
+        <span class="loading-dot"></span>
+        <span class="loading-dot"></span>
+        <span class="loading-dot"></span>
+      </div>
+
+      <ng-container *ngIf="!isLoading">
+
+        <!-- Main Categories -->
+        <section class="cat-section">
+          <h3 class="cat-section-label">Main Categories</h3>
+          <div class="cat-grid">
+            <button
+              *ngFor="let category of mainCategories"
+              class="cat-btn"
+              (click)="onCategoryClick(category)"
+              [attr.aria-label]="category.name">
+              <span class="cat-icon">{{ category.icon }}</span>
+              <span class="cat-name">{{ category.name }}</span>
+              <span class="cat-arrow">→</span>
+            </button>
+          </div>
+        </section>
+
+        <div class="cat-divider"></div>
+
+        <!-- By Style -->
+        <section class="cat-section">
+          <h3 class="cat-section-label">By Style</h3>
+          <div class="cat-grid cat-grid--dense">
+            <button
+              *ngFor="let category of styleCategories"
+              class="cat-btn"
+              (click)="onCategoryClick(category)"
+              [attr.aria-label]="category.name">
+              <span class="cat-icon">{{ getStyleIcon(category.name) }}</span>
+              <span class="cat-name">{{ category.name }}</span>
+              <span class="cat-arrow">→</span>
+            </button>
+          </div>
+        </section>
+
+      </ng-container>
+    </div>
+
+  </div>
 </div>

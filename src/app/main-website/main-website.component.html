@@ -1,204 +1,415 @@
-<div class="content-wrapper">
-    <section class="hero-section">
-        <div class="medieval-frame">
-            <div class="frame-corner top-left"></div>
-            <div class="frame-corner top-right"></div>
-            <div class="frame-corner bottom-left"></div>
-            <div class="frame-corner bottom-right"></div>
-            <div class="frame-ornament top-ornament"></div>
-            <div class="frame-ornament bottom-ornament"></div>
-            <div class="frame-ornament left-ornament"></div>
-            <div class="frame-ornament right-ornament"></div>
-            
-            <div class="hero-content">
-                <div class="quotes-section">
-                    <div class="quotes-container">
-                        <div class="quote-slide active">
-                            <span class="quote-mark">"</span>
-                            <p class="quote-text">Beer is proof that God loves us and wants us to be happy.</p>
-                            <span class="quote-mark">"</span>
-                            <p class="quote-author">- Benjamin Franklin</p>
-                        </div>
-                        
-                        <div class="quote-slide">
-                            <span class="quote-mark">"</span>
-                            <p class="quote-text">Give me a woman who loves beer and I will conquer the world.</p>
-                            <span class="quote-mark">"</span>
-                            <p class="quote-author">- Kaiser Wilhelm</p>
-                        </div>
-                        
-                        <div class="quote-slide">
-                            <span class="quote-mark">"</span>
-                            <p class="quote-text">He was a wise man who invented beer.</p>
-                            <span class="quote-mark">"</span>
-                            <p class="quote-author">- Plato</p>
-                        </div>
-                        
-                        <div class="quote-slide">
-                            <span class="quote-mark">"</span>
-                            <p class="quote-text">In a study, scientists report that drinking beer can be good for the liver. I'm sorry, did I say 'scientists'? I meant Irish people.</p>
-                            <span class="quote-mark">"</span>
-                            <p class="quote-author">- Tina Fey</p>
-                        </div>
-                        
-                        <div class="quote-slide">
-                            <span class="quote-mark">"</span>
-                            <p class="quote-text">Beer, it's the best damn drink in the world.</p>
-                            <span class="quote-mark">"</span>
-                            <p class="quote-author">- Jack Nicholson</p>
-                        </div>
-                        
-                        <div class="quote-slide">
-                            <span class="quote-mark">"</span>
-                            <p class="quote-text">Without question, the greatest invention in the history of mankind is beer. Oh, I grant you that the wheel was also a fine invention, but the wheel does not go nearly as well with pizza.</p>
-                            <span class="quote-mark">"</span>
-                            <p class="quote-author">- Dave Barry</p>
-                        </div>
-                        
-                        <div class="quote-slide">
-                            <span class="quote-mark">"</span>
-                            <p class="quote-text">Beer makes you feel the way you ought to feel without beer.</p>
-                            <span class="quote-mark">"</span>
-                            <p class="quote-author">- Henry Lawson</p>
-                        </div>
-                        
-                        <div class="quote-slide">
-                            <span class="quote-mark">"</span>
-                            <p class="quote-text">I work until beer o'clock.</p>
-                            <span class="quote-mark">"</span>
-                            <p class="quote-author">- Stephen King</p>
-                        </div>
-                        
-                        <div class="quote-slide">
-                            <span class="quote-mark">"</span>
-                            <p class="quote-text">Life is brewtiful.</p>
-                            <span class="quote-mark">"</span>
-                            <p class="quote-author">- Anonymous</p>
-                        </div>
-                        
-                        <div class="quote-slide">
-                            <span class="quote-mark">"</span>
-                            <p class="quote-text">Beer: Helping ugly people have sex since 1862!</p>
-                            <span class="quote-mark">"</span>
-                            <p class="quote-author">- W.C. Fields</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+<!-- ═══════════════════════════════════════════════
+     HERO
+════════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-dot-grid"></div>
+  <div class="hero-glow-orb"></div>
 
-    <section class="featured-categories">
-        <h2 class="categories-title">
-            <span class="title-ornament">⚜</span>
-            Featured Categories
-            <span class="title-ornament">⚜</span>
-        </h2>
-        
-        <div class="categories-grid">
-            <div class="category-card" (click)="selectCategory('Best Sellers')" [class.active]="selectedCategory === 'Best Sellers'">
-                <span class="category-icon">🏆</span>
-                <span class="category-name">Best Sellers</span>
-            </div>
-            <div class="category-card" [class.disabled]="true">
-                <span class="category-icon">🌍</span>
-                <span class="category-name">Imported Beers</span>
-                <span class="coming-soon">Coming Soon</span>
-            </div>
-            <div class="category-card" [class.disabled]="true">
-                <span class="category-icon">🌾</span>
-                <span class="category-name">Wheat Beers</span>
-                <span class="coming-soon">Coming Soon</span>
-            </div>
-            <div class="category-card" [class.disabled]="true">
-                <span class="category-icon">🍻</span>
-                <span class="category-name">Lagers</span>
-                <span class="coming-soon">Coming Soon</span>
-            </div>
-            <div class="category-card" [class.disabled]="true">
-                <span class="category-icon">⭐</span>
-                <span class="category-name">Limited Editions</span>
-                <span class="coming-soon">Coming Soon</span>
-            </div>
-        </div>
-    </section>
+  <div class="page-container">
+    <div class="hero-inner">
 
-    <!-- Beer Catalog Section -->
-    <section *ngIf="selectedCategory" class="beer-catalog">
-        <div class="catalog-header">
-            <h2 class="catalog-title">
-                <span class="title-ornament">⚜</span>
-                {{ selectedCategory }}
-                <span class="title-ornament">⚜</span>
-            </h2>
-            <button class="close-catalog-button" (click)="closeCategory()">
-                <span class="close-icon">✕</span>
-                <span>Close</span>
+      <!-- Left — copy -->
+      <div class="hero-text">
+        <span class="section-eyebrow">Tbilisi's Premier Beer Store</span>
+
+        <h1 class="heading-hero">
+          Georgian &amp; imported<br>
+          craft beer —<br>
+          <span class="text-amber">delivered.</span>
+        </h1>
+
+        <p class="hero-sub">
+          200+ curated beers from Georgia, Germany, Belgium and beyond.
+          Same-day delivery across Tbilisi, from our 4 store locations.
+        </p>
+
+        <div class="hero-actions">
+          <button class="btn btn--primary btn--lg" (click)="browseBeers.emit()">
+            Shop Now →
+          </button>
+          <button class="btn btn--ghost btn--lg" *ngIf="!isLoggedIn" (click)="openLogin.emit()">
+            Sign In
+          </button>
+        </div>
+
+        <p class="hero-trust" *ngIf="!isLoggedIn">Free to browse · No commitment · Cancel anytime</p>
+
+        <div class="hero-stats">
+          <div class="stat">
+            <span class="stat__value">200+</span>
+            <span class="stat__label">Beers</span>
+          </div>
+          <div class="hero-stat-sep"></div>
+          <div class="stat">
+            <span class="stat__value">4.9 ★</span>
+            <span class="stat__label">Rating</span>
+          </div>
+          <div class="hero-stat-sep"></div>
+          <div class="stat">
+            <span class="stat__value">&lt; 48 min</span>
+            <span class="stat__label">Avg. delivery</span>
+          </div>
+          <div class="hero-stat-sep"></div>
+          <div class="stat">
+            <span class="stat__value">4</span>
+            <span class="stat__label">Locations</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right — floating beer cluster -->
+      <div class="hero-visual" *ngIf="heroBeers.length === 3">
+        <div class="cluster-glow"></div>
+        <div class="beer-cluster">
+
+          <div class="cluster-card cluster-card--left">
+            <img [src]="heroBeers[1].imageUrl" [alt]="heroBeers[1].name" class="cluster-img">
+            <div class="cluster-card-body">
+              <span class="cluster-name">{{ heroBeers[1].name }}</span>
+              <span class="cluster-price text-amber">₾{{ heroBeers[1].price.toFixed(2) }}</span>
+            </div>
+          </div>
+
+          <div class="cluster-card cluster-card--center">
+            <div class="cluster-badge tag tag--amber">Best Seller</div>
+            <img [src]="heroBeers[0].imageUrl" [alt]="heroBeers[0].name" class="cluster-img">
+            <div class="cluster-card-body">
+              <span class="cluster-name">{{ heroBeers[0].name }}</span>
+              <span class="cluster-price text-amber">₾{{ heroBeers[0].price.toFixed(2) }}</span>
+            </div>
+          </div>
+
+          <div class="cluster-card cluster-card--right">
+            <img [src]="heroBeers[2].imageUrl" [alt]="heroBeers[2].name" class="cluster-img">
+            <div class="cluster-card-body">
+              <span class="cluster-name">{{ heroBeers[2].name }}</span>
+              <span class="cluster-price text-amber">₾{{ heroBeers[2].price.toFixed(2) }}</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     FEATURES
+════════════════════════════════════════════════ -->
+<section class="features-section">
+  <div class="page-container">
+    <div class="features-grid">
+
+      <div class="feature-item fade-up">
+        <div class="icon-box">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="1" y="3" width="15" height="13" rx="2"/><path d="m16 8 4 0 3 5v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+          </svg>
+        </div>
+        <h3 class="heading-3">Delivered to Your Door</h3>
+        <p class="text-muted">From any of our 4 Tbilisi stores to your address. Set your address once, reorder anytime.</p>
+      </div>
+
+      <div class="feature-item fade-up">
+        <div class="icon-box">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+          </svg>
+        </div>
+        <h3 class="heading-3">200+ Curated Beers</h3>
+        <p class="text-muted">Georgian craft, German lagers, Belgian ales and more — curated for quality, not just quantity.</p>
+      </div>
+
+      <div class="feature-item fade-up">
+        <div class="icon-box">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <h3 class="heading-3">4 Tbilisi Locations</h3>
+        <p class="text-muted">Delivery always calculated from the nearest store to your door. Max ₾4 fee across the whole city.</p>
+      </div>
+
+      <div class="feature-item fade-up">
+        <div class="icon-box">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <h3 class="heading-3">Secure &amp; Simple</h3>
+        <p class="text-muted">Create an account in seconds. Your address and order history are always saved and secure.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     BEST SELLERS
+════════════════════════════════════════════════ -->
+<section class="bestsellers-section">
+  <div class="page-container">
+
+    <div class="section-header fade-up">
+      <div>
+        <span class="section-eyebrow">Top Picks</span>
+        <h2 class="heading-1">Best Sellers</h2>
+      </div>
+      <button class="btn btn--ghost" (click)="browseBeers.emit()">View all →</button>
+    </div>
+
+    <!-- Loading skeleton -->
+    <div class="beer-grid" *ngIf="isLoading">
+      <div class="beer-skeleton" *ngFor="let i of [1,2,3,4,5,6]">
+        <div class="sk-img"></div>
+        <div class="sk-body">
+          <div class="sk-line sk-line--wide"></div>
+          <div class="sk-line"></div>
+          <div class="sk-line sk-line--short"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Populated grid -->
+    <div class="beer-grid" *ngIf="!isLoading && bestSellers.length > 0">
+      <div *ngFor="let beer of bestSellers"
+           class="beer-tile fade-up"
+           [class.cart-added]="addedToCart[beer.id]">
+
+        <div class="beer-img-wrap">
+          <img [src]="beer.imageUrl" [alt]="beer.brand + ' ' + beer.name" class="beer-img">
+          <span class="beer-style-tag">{{ beer.style }}</span>
+          <!-- Cart-added overlay -->
+          <div class="cart-added-check" *ngIf="addedToCart[beer.id]">
+            <span class="cart-added-check-icon">✓</span>
+          </div>
+        </div>
+
+        <div class="beer-body">
+          <div class="beer-meta-row">
+            <span class="beer-brand">{{ beer.brand }}</span>
+            <span class="beer-origin">{{ beer.country }}</span>
+          </div>
+          <p class="beer-name">{{ beer.name }}</p>
+
+          <div class="beer-footer-row">
+            <span class="beer-price">₾{{ beer.price.toFixed(2) }}</span>
+
+            <!-- Quantity control when in cart -->
+            <div class="qty-control" *ngIf="isLoggedIn && cartItemMap[beer.id]">
+              <button class="qty-control__btn"
+                [class.qty-control__btn--remove]="cartItemMap[beer.id].quantity === 1"
+                [disabled]="updatingQty[beer.id]"
+                (click)="decreaseQty(beer.id)">
+                {{ cartItemMap[beer.id].quantity === 1 ? '×' : '−' }}
+              </button>
+              <span class="qty-control__val">{{ cartItemMap[beer.id].quantity }}</span>
+              <button class="qty-control__btn"
+                [disabled]="updatingQty[beer.id]"
+                (click)="increaseQty(beer.id)">+</button>
+            </div>
+
+            <!-- Add to cart when not in cart -->
+            <button class="btn btn--primary btn--sm add-btn"
+              *ngIf="!isLoggedIn || !cartItemMap[beer.id]"
+              [class.add-btn--added]="addedToCart[beer.id]"
+              [disabled]="addingToCart[beer.id] || addedToCart[beer.id]"
+              (click)="addToCart(beer)">
+              {{ addedToCart[beer.id] ? '✓ Added' : (addingToCart[beer.id] ? '…' : (isLoggedIn ? '+ Cart' : 'Login')) }}
             </button>
+          </div>
         </div>
 
-        <div class="beer-grid">
-            <div *ngFor="let beer of getCurrentBeers()" class="beer-tile"
-                 [class.cart-added]="addedToCart[beer.id]">
-                <div class="beer-image-container">
-                    <img [src]="beer.imageUrl" [alt]="beer.brand + ' ' + beer.name" class="beer-image" />
-                    <div class="beer-overlay">
-                        <span class="beer-style">{{ beer.style }}</span>
-                    </div>
-                    <!-- Success overlay -->
-                    <div class="cart-added-check" *ngIf="addedToCart[beer.id]">
-                        <span class="cart-added-check-icon">✓</span>
-                    </div>
-                </div>
-                
-                <div class="beer-info">
-                    <h3 class="beer-brand">{{ beer.brand }}</h3>
-                    <p class="beer-name">{{ beer.name }}</p>
-                    
-                    <div class="beer-details">
-                        <div class="beer-country">
-                            <span class="detail-icon">🌍</span>
-                            <span>{{ beer.country }}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="beer-footer">
-                        <div class="beer-price">
-                            <span class="currency">₾</span>
-                            <span class="price-value">{{ beer.price.toFixed(2) }}</span>
-                        </div>
+      </div>
+    </div>
 
-                        <!-- Quantity controls — shown when beer is already in the cart -->
-                        <div class="card-qty-controls" *ngIf="isLoggedIn && cartItemMap[beer.id]">
-                            <button class="card-qty-btn"
-                                [class.is-remove]="cartItemMap[beer.id].quantity === 1"
-                                [disabled]="updatingQty[beer.id]"
-                                (click)="decreaseQty(beer.id)">
-                                {{ cartItemMap[beer.id].quantity === 1 ? '🗑' : '−' }}
-                            </button>
-                            <span class="card-qty-val">{{ cartItemMap[beer.id].quantity }}</span>
-                            <button class="card-qty-btn"
-                                [disabled]="updatingQty[beer.id]"
-                                (click)="increaseQty(beer.id)">+</button>
-                        </div>
+  </div>
+</section>
 
-                        <!-- Add to Cart button — shown when beer is NOT in the cart -->
-                        <button class="add-to-cart-button"
-                            *ngIf="!isLoggedIn || !cartItemMap[beer.id]"
-                            [class.adding]="addingToCart[beer.id]"
-                            [class.added]="addedToCart[beer.id]"
-                            [disabled]="addingToCart[beer.id] || addedToCart[beer.id]"
-                            (click)="addToCart(beer)">
-                            <span class="button-icon">
-                                {{ addedToCart[beer.id] ? '✓' : (addingToCart[beer.id] ? '⏳' : '🛒') }}
-                            </span>
-                            <span>
-                                {{ addedToCart[beer.id] ? 'Added!' : (addingToCart[beer.id] ? 'Adding...' : (isLoggedIn ? 'Add to Cart' : 'Log in to Buy')) }}
-                            </span>
-                        </button>
-                    </div>
-                </div>
-            </div>
+<!-- ═══════════════════════════════════════════════
+     STATS STRIP
+════════════════════════════════════════════════ -->
+<section class="stats-strip">
+  <div class="page-container">
+      <div class="stats-row fade-up">
+
+      <div class="stats-item">
+        <span class="stats-val">2,400+</span>
+        <span class="stats-lbl">Orders delivered</span>
+      </div>
+      <div class="stats-sep"></div>
+      <div class="stats-item">
+        <span class="stats-val">Same-day</span>
+        <span class="stats-lbl">Across all Tbilisi</span>
+      </div>
+      <div class="stats-sep"></div>
+      <div class="stats-item">
+        <span class="stats-val">4.9 ★</span>
+        <span class="stats-lbl">Google rating</span>
+      </div>
+      <div class="stats-sep"></div>
+      <div class="stats-item">
+        <span class="stats-val">₾0</span>
+        <span class="stats-lbl">Hidden fees</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     DELIVERY ZONE
+════════════════════════════════════════════════ -->
+<section class="delivery-section">
+  <div class="page-container">
+    <div class="delivery-inner">
+
+      <!-- Copy -->
+      <div class="delivery-copy fade-up">
+        <span class="section-eyebrow">Delivery Zone</span>
+        <h2 class="heading-1">We cover all<br>of Tbilisi.</h2>
+        <p class="text-muted delivery-desc">
+          Delivery is calculated from whichever of our 4 stores is closest to
+          you — so you always get the fastest, cheapest option. Maximum ₾4, no surprises.
+        </p>
+
+        <div class="delivery-facts">
+          <div class="delivery-fact">
+            <span class="delivery-fact-val">13.5 km</span>
+            <span class="delivery-fact-lbl">Delivery radius</span>
+          </div>
+          <div class="delivery-fact">
+            <span class="delivery-fact-val">₾4</span>
+            <span class="delivery-fact-lbl">Maximum fee</span>
+          </div>
+          <div class="delivery-fact">
+            <span class="delivery-fact-val">4</span>
+            <span class="delivery-fact-lbl">Store locations</span>
+          </div>
         </div>
-    </section>
-</div>
+
+        <button class="btn btn--ghost" *ngIf="!isLoggedIn" (click)="openLogin.emit()">
+          Set My Address →
+        </button>
+      </div>
+
+      <!-- Map preview -->
+      <div class="delivery-map-wrap fade-up">
+        <div id="preview-map" class="preview-map"></div>
+        <div class="map-legend">
+          <span class="legend-dot"></span>
+          <span class="legend-txt">Store location</span>
+          <span class="legend-ring"></span>
+          <span class="legend-txt">Delivery zone</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     TESTIMONIALS
+════════════════════════════════════════════════ -->
+<section class="testimonial-section">
+  <div class="page-container">
+    <div class="testimonial-header fade-up">
+      <span class="section-eyebrow">What customers say</span>
+      <h2 class="heading-1">Don't take<br>our word for it.</h2>
+    </div>
+    <div class="testimonial-grid">
+
+      <div class="testimonial-card fade-up">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-quote">
+          "Finally a beer store that delivers to my neighbourhood.
+          The selection is incredible — I found Georgian craft beers I didn't even know existed."
+        </p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">G</div>
+          <div class="testimonial-author-info">
+            <span class="testimonial-name">Giorgi T.</span>
+            <span class="text-muted testimonial-role">Verified buyer · Vake</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonial-card fade-up">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-quote">
+          "Ordered a mixed case of German lagers and it arrived in under 40 minutes.
+          Packaging was great, everything ice-cold. Genuinely impressed."
+        </p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">N</div>
+          <div class="testimonial-author-info">
+            <span class="testimonial-name">Nino K.</span>
+            <span class="text-muted testimonial-role">Verified buyer · Saburtalo</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonial-card fade-up">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-quote">
+          "Best craft beer selection in Tbilisi, hands down. The delivery fee is nothing
+          compared to what I'd spend on a taxi to a liquor store."
+        </p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">M</div>
+          <div class="testimonial-author-info">
+            <span class="testimonial-name">Mikheil A.</span>
+            <span class="text-muted testimonial-role">Verified buyer · Isani</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     FAQ
+════════════════════════════════════════════════ -->
+<section class="faq-section">
+  <div class="page-container page-container--narrow">
+
+    <div class="faq-header fade-up">
+      <span class="section-eyebrow">Got questions?</span>
+      <h2 class="heading-1">FAQ</h2>
+    </div>
+
+    <div class="faq-list">
+      @for (item of faqItems; track $index) {
+        <div class="faq-item fade-up" [class.faq-item--open]="openFaqIndex === $index">
+          <button class="faq-question" (click)="toggleFaq($index)" type="button">
+            <span>{{ item.q }}</span>
+            <span class="faq-chevron"></span>
+          </button>
+          <div class="faq-answer" [class.faq-answer--open]="openFaqIndex === $index">
+            <p>{{ item.a }}</p>
+          </div>
+        </div>
+      }
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     FINAL CTA
+════════════════════════════════════════════════ -->
+<section class="cta-section">
+  <div class="page-container">
+    <div class="cta-card fade-up">
+      <div class="cta-glow"></div>
+      <span class="section-eyebrow">Ready?</span>
+      <h2 class="heading-1">Your next round is<br>one tap away.</h2>
+      <div class="cta-actions">
+        <button class="btn btn--primary btn--lg" (click)="browseBeers.emit()">Shop Now →</button>
+        <button class="btn btn--ghost btn--lg" *ngIf="!isLoggedIn" (click)="openLogin.emit()">Create Account</button>
+      </div>
+    </div>
+  </div>
+</section>

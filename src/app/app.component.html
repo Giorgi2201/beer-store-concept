@@ -3,7 +3,7 @@
 @if (showProfileView) {
   <app-user-profile (back)="onBackToHome()"></app-user-profile>
 } @else if (!showCategoryView) {
-  <app-main-website (openLogin)="openLoginModal()"></app-main-website>
+  <app-main-website (openLogin)="openLoginModal()" (browseBeers)="onBrowseAllBeers()"></app-main-website>
 } @else {
   <app-category-view 
     [categoryName]="selectedCategoryName"

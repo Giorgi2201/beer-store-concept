@@ -1,9 +1,15 @@
-import { Component, OnInit, OnDestroy, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, EventEmitter, Output, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService, Beer } from '../services/api.service';
 import { AuthService } from '../services/auth.service';
 import { CartService, CartItem } from '../services/cart.service';
+import { AddressService } from '../services/address.service';
 import { Subscription } from 'rxjs';
+import * as L from 'leaflet';
+
+const TBILISI_LAT  = 41.6938;
+const TBILISI_LNG  = 44.8015;
+const ZONE_KM      = 13.5;
 
 @Component({
   selector: 'app-main-website',
@@ -11,141 +17,189 @@ import { Subscription } from 'rxjs';
   templateUrl: './main-website.component.html',
   styleUrl: './main-website.component.css'
 })
-export class MainWebsiteComponent implements OnInit, OnDestroy {
-  @Output() openLogin = new EventEmitter<void>();
-  
-  private intervalId: any;
-  selectedCategory: string | null = null;
+export class MainWebsiteComponent implements OnInit, AfterViewInit, OnDestroy {
+  @Output() openLogin   = new EventEmitter<void>();
+  @Output() browseBeers = new EventEmitter<void>();
+
   isLoggedIn = false;
-  isLoading = false;
-  
-  // Beer catalog data
+  isLoading  = false;
+
   bestSellers: Beer[] = [];
   addingToCart: { [beerId: number]: boolean } = {};
   addedToCart:  { [beerId: number]: boolean } = {};
   cartItemMap:  { [beerId: number]: CartItem } = {};
   updatingQty:  { [beerId: number]: boolean } = {};
 
+  openFaqIndex: number | null = null;
+  faqItems = [
+    {
+      q: 'How long does delivery take?',
+      a: 'Average delivery time is around 45 minutes from the nearest of our 4 Tbilisi stores to your door — sometimes faster depending on your neighbourhood.'
+    },
+    {
+      q: 'What areas do you deliver to?',
+      a: 'We deliver across a 13.5 km radius centred on Tbilisi, covering all major neighbourhoods — Vake, Saburtalo, Isani, Samgori, Didi Dighomi and beyond.'
+    },
+    {
+      q: 'How is the delivery fee calculated?',
+      a: 'We find whichever of our 4 stores is closest to your saved address and calculate the fee from there. The maximum you\'ll ever pay is ₾4 — no hidden charges.'
+    },
+    {
+      q: 'Do I need an account to order?',
+      a: 'Yes — creating a free account lets you save your delivery address, browse your order history, and check out in seconds every time.'
+    },
+    {
+      q: 'Do you stock Georgian craft beers?',
+      a: 'Absolutely. Georgian craft beer is at the heart of what we do. We carry labels like Kacheturi, Baia, Chateau Mukhrani Ale, and more alongside our imported European selection.'
+    },
+    {
+      q: 'Can I update my delivery address?',
+      a: 'Yes — head to your Profile page at any time to pick a new address on the map. Delivery costs are recalculated automatically when you add items to your cart.'
+    },
+  ];
+
   private cartSub?: Subscription;
   private authSub?: Subscription;
+  private fadeObserver?: IntersectionObserver;
+  private previewMap: L.Map | null = null;
 
   constructor(
     private apiService: ApiService,
     private authService: AuthService,
-    private cartService: CartService
+    private cartService: CartService,
+    private addressService: AddressService,
+    private ngZone: NgZone
   ) {}
 
   ngOnInit() {
-    this.startQuoteRotation();
     this.loadBestSellers();
 
     this.authSub = this.authService.isAuthenticated$.subscribe(isAuth => {
       this.isLoggedIn = isAuth;
-      if (isAuth) {
-        this.cartService.getCart().subscribe();
-      }
+      if (isAuth) this.cartService.getCart().subscribe();
     });
 
     this.cartSub = this.cartService.cart$.subscribe(cart => {
       this.cartItemMap = {};
-      if (cart?.items) {
-        cart.items.forEach(item => { this.cartItemMap[item.beerId] = item; });
-      }
+      cart?.items?.forEach(item => { this.cartItemMap[item.beerId] = item; });
+    });
+  }
+
+  ngAfterViewInit() {
+    this.fadeObserver = new IntersectionObserver(
+      entries => entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('is-visible');
+          this.fadeObserver?.unobserve(e.target);
+        }
+      }),
+      { threshold: 0.1 }
+    );
+    this.observeFadeEls();
+    setTimeout(() => this.initPreviewMap(), 200);
+  }
+
+  private initPreviewMap() {
+    const container = document.getElementById('preview-map');
+    if (!container || this.previewMap) return;
+
+    this.ngZone.runOutsideAngular(() => {
+      this.previewMap = L.map('preview-map', {
+        center: [TBILISI_LAT, TBILISI_LNG],
+        zoom: 11,
+        zoomControl: false,
+        scrollWheelZoom: false,
+        dragging: false,
+        touchZoom: false,
+        doubleClickZoom: false,
+        boxZoom: false,
+        keyboard: false,
+        attributionControl: false,
+      });
+
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19,
+        subdomains: 'abcd',
+      }).addTo(this.previewMap);
+
+      // Delivery zone circle
+      L.circle([TBILISI_LAT, TBILISI_LNG], {
+        radius: ZONE_KM * 1000,
+        color:       'rgba(212,131,26,0.75)',
+        fillColor:   'rgba(212,131,26,0.08)',
+        fillOpacity: 1,
+        weight: 2,
+        dashArray: '6 4',
+      }).addTo(this.previewMap);
+
+      // Store markers as amber dots
+      this.addressService.getStores().subscribe(stores => {
+        stores.forEach(store => {
+          const icon = L.divIcon({
+            html: `<div style="width:14px;height:14px;border-radius:50%;background:#d4831a;border:2px solid rgba(255,255,255,0.55);box-shadow:0 0 10px rgba(212,131,26,0.7)"></div>`,
+            className: '',
+            iconSize:   [14, 14],
+            iconAnchor: [7, 7],
+          });
+          L.marker([store.latitude, store.longitude], { icon })
+            .bindTooltip(store.name, { permanent: false, direction: 'top' })
+            .addTo(this.previewMap!);
+        });
+      });
+    });
+  }
+
+  private observeFadeEls() {
+    document.querySelectorAll('app-main-website .fade-up').forEach(el => {
+      this.fadeObserver?.observe(el);
     });
   }
 
   loadBestSellers() {
     this.isLoading = true;
     this.apiService.getBestSellers().subscribe({
-      next: (beers) => {
+      next: beers => {
         this.bestSellers = beers;
         this.isLoading = false;
+        setTimeout(() => this.observeFadeEls(), 80);
       },
-      error: (err) => {
-        console.error('Error loading best sellers:', err);
+      error: () => {
         this.isLoading = false;
-        // Keep the hardcoded fallback data
         this.loadFallbackData();
       }
     });
   }
 
   loadFallbackData() {
-    // Fallback data in case API is not available
     this.bestSellers = [
-      { id: 1, name: 'Weissbier', brand: 'Paulaner', style: 'Hefeweizen', country: 'Germany', price: 3.50, imageUrl: 'https://images.unsplash.com/photo-1608270586620-248524c67de9?w=400', description: 'Classic Bavarian wheat beer', alcoholContent: 5.5, stockQuantity: 100, isBestSeller: true, isLimitedEdition: false, isNewArrival: false, categories: [] },
-      { id: 2, name: 'Dunkel', brand: 'Paulaner', style: 'Dark Lager', country: 'Germany', price: 3.70, imageUrl: 'https://images.unsplash.com/photo-1535958636474-b021ee887b13?w=400', description: 'Dark Munich lager', alcoholContent: 4.9, stockQuantity: 80, isBestSeller: true, isLimitedEdition: false, isNewArrival: false, categories: [] },
-      { id: 3, name: 'Oktoberfest', brand: 'Paulaner', style: 'Märzen', country: 'Germany', price: 3.90, imageUrl: 'https://images.unsplash.com/photo-1569529465841-dfecdab7503b?w=400', description: 'Festive Märzen beer', alcoholContent: 5.8, stockQuantity: 60, isBestSeller: false, isLimitedEdition: false, isNewArrival: false, categories: [] }
+      { id: 1, name: 'Weissbier', brand: 'Paulaner', style: 'Hefeweizen', country: 'Germany', price: 3.50, imageUrl: 'https://images.unsplash.com/photo-1608270586620-248524c67de9?w=400', description: '', alcoholContent: 5.5, stockQuantity: 100, isBestSeller: true, isLimitedEdition: false, isNewArrival: false, categories: [] },
+      { id: 2, name: 'Dunkel', brand: 'Paulaner', style: 'Dark Lager', country: 'Germany', price: 3.70, imageUrl: 'https://images.unsplash.com/photo-1535958636474-b021ee887b13?w=400', description: '', alcoholContent: 4.9, stockQuantity: 80, isBestSeller: true, isLimitedEdition: false, isNewArrival: false, categories: [] },
+      { id: 3, name: 'Oktoberfest', brand: 'Paulaner', style: 'Märzen', country: 'Germany', price: 3.90, imageUrl: 'https://images.unsplash.com/photo-1569529465841-dfecdab7503b?w=400', description: '', alcoholContent: 5.8, stockQuantity: 60, isBestSeller: false, isLimitedEdition: false, isNewArrival: false, categories: [] }
     ];
+    setTimeout(() => this.observeFadeEls(), 80);
   }
 
-  getAvailableStyles(): string[] {
-    if (!this.bestSellers || this.bestSellers.length === 0) {
-      return [];
-    }
-    const styles = [...new Set(this.bestSellers.map(beer => beer.style))];
-    return styles.sort();
+  get heroBeers(): Beer[] {
+    return this.bestSellers.slice(0, 3);
+  }
+
+  toggleFaq(index: number) {
+    this.openFaqIndex = this.openFaqIndex === index ? null : index;
   }
 
   ngOnDestroy() {
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
-    }
     this.cartSub?.unsubscribe();
     this.authSub?.unsubscribe();
-  }
-
-  startQuoteRotation() {
-    this.intervalId = setInterval(() => {
-      const quotes = document.querySelectorAll('.quote-slide');
-      let activeIndex = -1;
-      
-      // Find current active quote
-      quotes.forEach((quote, index) => {
-        if (quote.classList.contains('active')) {
-          activeIndex = index;
-          quote.classList.remove('active');
-        }
-      });
-      
-      // Move to next quote (loop back to 0 if at end)
-      const nextIndex = (activeIndex + 1) % quotes.length;
-      quotes[nextIndex].classList.add('active');
-    }, 10000); // 10 seconds
-  }
-
-  selectCategory(category: string) {
-    this.selectedCategory = category;
-    // Scroll to catalog section
-    setTimeout(() => {
-      const catalog = document.querySelector('.beer-catalog');
-      if (catalog) {
-        catalog.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }, 100);
-  }
-
-  closeCategory() {
-    this.selectedCategory = null;
-  }
-
-  getCurrentBeers(): Beer[] {
-    switch (this.selectedCategory) {
-      case 'Best Sellers':
-        return this.bestSellers;
-      // Add more categories here later
-      default:
-        return [];
+    this.fadeObserver?.disconnect();
+    if (this.previewMap) {
+      this.previewMap.remove();
+      this.previewMap = null;
     }
   }
 
   addToCart(beer: Beer) {
-    if (!this.isLoggedIn) {
-      this.openLogin.emit();
-      return;
-    }
+    if (!this.isLoggedIn) { this.openLogin.emit(); return; }
     if (this.addingToCart[beer.id] || this.addedToCart[beer.id]) return;
-
     this.addingToCart[beer.id] = true;
     this.cartService.addToCart(beer.id, 1).subscribe({
       next: () => {
@@ -153,11 +207,9 @@ export class MainWebsiteComponent implements OnInit, OnDestroy {
         this.addedToCart[beer.id]  = true;
         setTimeout(() => { this.addedToCart[beer.id] = false; }, 1600);
       },
-      error: (err) => {
+      error: err => {
         this.addingToCart[beer.id] = false;
-        if (err.status === 401) {
-          this.openLogin.emit();
-        }
+        if (err.status === 401) this.openLogin.emit();
       }
     });
   }

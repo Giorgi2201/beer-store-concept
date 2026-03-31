@@ -95,4 +95,16 @@ export class AppComponent {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }, 0);
   }
+
+  onBrowseAllBeers() {
+    this.selectedCategoryName = 'All Beers';
+    this.categoryBeers = [];
+    this.initialFilters = {};
+    this.showCategoryView = false;
+    this.showProfileView = false;
+    setTimeout(() => {
+      this.showCategoryView = true;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 0);
+  }
 }

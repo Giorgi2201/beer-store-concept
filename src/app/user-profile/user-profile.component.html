@@ -1,197 +1,239 @@
-<div class="profile-container">
-  <div class="profile-header">
-    <button class="back-button" (click)="goBack()">
-      <span>🏰</span>
-      <span>Back to Home</span>
-    </button>
-    <h1 class="profile-title">User Profile</h1>
-  </div>
+<div class="up-wrap">
 
-  <div class="profile-content">
-    <!-- Profile Picture Section -->
-    <div class="profile-section profile-picture-section">
-      <div class="profile-picture-container">
-        <img [src]="profilePicture || defaultProfilePicture" alt="Profile Picture" class="profile-picture">
-        <button class="change-picture-btn" (click)="fileInput.click()">
-          <span>📷</span>
-          <span>Change Picture</span>
+  <!-- ── Page header ─────────────────────────────────────────────── -->
+  <div class="up-page-header">
+    <div class="page-container">
+      <div class="up-header-inner">
+        <button class="up-back-btn btn btn--ghost" (click)="goBack()">
+          ← Back to Store
         </button>
-        <input #fileInput type="file" accept="image/*" (change)="onProfilePictureChange($event)" style="display: none;">
+        <h1 class="up-page-title">My Profile</h1>
       </div>
-    </div>
-
-    <!-- User Information Section -->
-    <div class="profile-section">
-      <h2 class="section-title">
-        <span class="section-icon">👤</span>
-        Personal Information
-      </h2>
-      <div class="info-grid">
-        <div class="info-item">
-          <label>First Name</label>
-          <input type="text" [(ngModel)]="userInfo.firstName" class="medieval-input" [disabled]="!editMode">
-        </div>
-        <div class="info-item">
-          <label>Last Name</label>
-          <input type="text" [(ngModel)]="userInfo.lastName" class="medieval-input" [disabled]="!editMode">
-        </div>
-        <div class="info-item">
-          <label>Email</label>
-          <input type="email" [(ngModel)]="userInfo.email" class="medieval-input" disabled>
-        </div>
-        <div class="info-item">
-          <label>Member Since</label>
-          <input type="text" [value]="userInfo.createdAt | date:'mediumDate'" class="medieval-input" disabled>
-        </div>
-      </div>
-      <button class="medieval-button" *ngIf="!editMode" (click)="enableEditMode()">
-        <span>✏️</span> <span>Edit Information</span>
-      </button>
-      <div class="button-group" *ngIf="editMode">
-        <button class="medieval-button save-btn" (click)="saveUserInfo()" [disabled]="isSavingProfile">
-          <span>💾</span> <span>{{ isSavingProfile ? 'Saving...' : 'Save Changes' }}</span>
-        </button>
-        <button class="medieval-button cancel-btn" (click)="cancelEdit()" [disabled]="isSavingProfile">
-          <span>❌</span> <span>Cancel</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Password Reset Section -->
-    <div class="profile-section">
-      <h2 class="section-title">
-        <span class="section-icon">🔒</span>
-        Change Password
-      </h2>
-      <div class="info-grid">
-        <div class="info-item">
-          <label>Current Password</label>
-          <input type="password" [(ngModel)]="passwordForm.currentPassword" class="medieval-input" placeholder="Enter current password">
-        </div>
-        <div class="info-item">
-          <label>New Password</label>
-          <input type="password" [(ngModel)]="passwordForm.newPassword" class="medieval-input" placeholder="Enter new password">
-        </div>
-        <div class="info-item">
-          <label>Confirm New Password</label>
-          <input type="password" [(ngModel)]="passwordForm.confirmPassword" class="medieval-input" placeholder="Confirm new password">
-        </div>
-      </div>
-      <div class="password-requirements" *ngIf="passwordForm.newPassword">
-        <p class="requirement" [class.met]="passwordRequirements.minLength">✓ At least 8 characters</p>
-        <p class="requirement" [class.met]="passwordRequirements.hasCapital">✓ One uppercase letter</p>
-        <p class="requirement" [class.met]="passwordRequirements.hasNumber">✓ One number</p>
-        <p class="requirement" [class.met]="passwordRequirements.passwordsMatch">✓ Passwords match</p>
-      </div>
-      <button class="medieval-button" (click)="changePassword()" [disabled]="!isPasswordValid() || isChangingPassword">
-        <span>🔑</span> <span>{{ isChangingPassword ? 'Updating...' : 'Update Password' }}</span>
-      </button>
-    </div>
-
-    <!-- Delivery Address Section -->
-    <div class="profile-section address-section">
-      <h2 class="section-title">
-        <span class="section-icon">🏠</span>
-        Delivery Address
-      </h2>
-
-      <!-- Address search bar -->
-      <div class="address-search">
-        <div class="search-row">
-          <input
-            type="text"
-            class="medieval-input"
-            [(ngModel)]="addressSearchQuery"
-            placeholder="Search for your address..."
-            (keyup.enter)="searchAddress()"
-          >
-          <button class="medieval-button search-btn" (click)="searchAddress()">Search</button>
-        </div>
-        <div class="search-results" *ngIf="searchResults.length > 0">
-          <div
-            class="search-result-item"
-            *ngFor="let r of searchResults"
-            (click)="selectSearchResult(r)"
-          >
-            📍 {{ r.display_name }}
-          </div>
-        </div>
-      </div>
-
-      <!-- Map -->
-      <div class="map-hint">
-        <span>📌</span> Click anywhere on the map to set your delivery location, or drag the marker.
-      </div>
-      <div id="delivery-map" class="delivery-map"></div>
-
-      <!-- Invalid location warning -->
-      <div class="location-error" *ngIf="locationError">
-        ⛰️ {{ locationError }}
-      </div>
-
-      <!-- Delivery cost indicator -->
-      <div class="delivery-cost-card" *ngIf="selectedLat !== null && deliveryQuote !== null">
-        <ng-container *ngIf="deliveryQuote!.inZone; else outOfZone">
-          <div class="cost-row store-row">
-            <span class="cost-label">🍺 Nearest Store</span>
-            <span class="cost-value store-name">{{ deliveryQuote!.nearestStoreName }}</span>
-          </div>
-          <div class="cost-row">
-            <span class="cost-label">📦 Distance</span>
-            <span class="cost-value">{{ deliveryQuote!.distanceKm }} km</span>
-          </div>
-          <div class="cost-row highlight">
-            <span class="cost-label">💰 Delivery Cost</span>
-            <span class="cost-value">₾{{ deliveryQuote!.cost.toFixed(2) }}</span>
-          </div>
-          <div class="cost-note">Max ₾4.00 — Delivery zone covers Tbilisi up to Koda village</div>
-        </ng-container>
-        <ng-template #outOfZone>
-          <div class="out-of-zone">
-            ⚠️ This address is outside our delivery zone. Please select a location within Tbilisi.
-          </div>
-        </ng-template>
-      </div>
-
-      <!-- Address fields -->
-      <div class="info-grid address-fields">
-        <div class="info-item full-width">
-          <label>Street Address</label>
-          <input
-            type="text"
-            [(ngModel)]="addressLine"
-            class="medieval-input"
-            placeholder="Select on map or type address"
-          >
-        </div>
-        <div class="info-item">
-          <label>Phone Number</label>
-          <input type="tel" [(ngModel)]="phone" class="medieval-input" placeholder="+995 5XX XXX XXX">
-        </div>
-      </div>
-
-      <button
-        class="medieval-button save-address-btn"
-        (click)="saveAddress()"
-        [disabled]="isSavingAddress || !selectedLat"
-      >
-        <span>💾</span>
-        <span>{{ isSavingAddress ? 'Saving...' : 'Save Address' }}</span>
-      </button>
     </div>
   </div>
 
-  <!-- Success/Error Messages -->
-  <div class="message-container" *ngIf="successMessage">
-    <div class="success-message">
-      <span>✅</span>
-      <span>{{ successMessage }}</span>
+  <!-- ── Main content ────────────────────────────────────────────── -->
+  <div class="page-container">
+    <div class="up-content">
+
+      <!-- ══════════════════════════════════════════════════════════
+           PROFILE PICTURE
+      ══════════════════════════════════════════════════════════ -->
+      <div class="up-card up-avatar-card">
+        <div class="up-avatar-wrap">
+          <img [src]="profilePicture || defaultProfilePicture"
+               alt="Profile Picture"
+               class="up-avatar-img">
+          <button class="up-avatar-change-btn btn btn--ghost btn--sm"
+                  (click)="fileInput.click()">
+            Change Photo
+          </button>
+          <input #fileInput type="file" accept="image/*"
+                 (change)="onProfilePictureChange($event)"
+                 style="display:none">
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════════
+           PERSONAL INFORMATION
+      ══════════════════════════════════════════════════════════ -->
+      <div class="up-card">
+        <div class="up-card-header">
+          <h2 class="up-card-title">Personal Information</h2>
+          <p class="up-card-sub">Your name and account details</p>
+        </div>
+
+        <div class="up-field-grid">
+          <div class="up-field">
+            <label class="up-label">First Name</label>
+            <input type="text" [(ngModel)]="userInfo.firstName"
+                   class="up-input" [disabled]="!editMode">
+          </div>
+          <div class="up-field">
+            <label class="up-label">Last Name</label>
+            <input type="text" [(ngModel)]="userInfo.lastName"
+                   class="up-input" [disabled]="!editMode">
+          </div>
+          <div class="up-field">
+            <label class="up-label">Email</label>
+            <input type="email" [(ngModel)]="userInfo.email"
+                   class="up-input" disabled>
+          </div>
+          <div class="up-field">
+            <label class="up-label">Member Since</label>
+            <input type="text" [value]="userInfo.createdAt | date:'mediumDate'"
+                   class="up-input" disabled>
+          </div>
+        </div>
+
+        <div class="up-card-actions">
+          <button class="btn btn--ghost" *ngIf="!editMode" (click)="enableEditMode()">
+            Edit Information
+          </button>
+          <ng-container *ngIf="editMode">
+            <button class="btn btn--primary" (click)="saveUserInfo()" [disabled]="isSavingProfile">
+              {{ isSavingProfile ? 'Saving…' : 'Save Changes' }}
+            </button>
+            <button class="btn btn--ghost" (click)="cancelEdit()" [disabled]="isSavingProfile">
+              Cancel
+            </button>
+          </ng-container>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════════
+           CHANGE PASSWORD
+      ══════════════════════════════════════════════════════════ -->
+      <div class="up-card">
+        <div class="up-card-header">
+          <h2 class="up-card-title">Change Password</h2>
+          <p class="up-card-sub">Keep your account secure</p>
+        </div>
+
+        <div class="up-field-grid">
+          <div class="up-field">
+            <label class="up-label">Current Password</label>
+            <input type="password" [(ngModel)]="passwordForm.currentPassword"
+                   class="up-input" placeholder="Enter current password">
+          </div>
+          <div class="up-field">
+            <label class="up-label">New Password</label>
+            <input type="password" [(ngModel)]="passwordForm.newPassword"
+                   class="up-input" placeholder="Enter new password">
+          </div>
+          <div class="up-field">
+            <label class="up-label">Confirm New Password</label>
+            <input type="password" [(ngModel)]="passwordForm.confirmPassword"
+                   class="up-input" placeholder="Confirm new password">
+          </div>
+        </div>
+
+        <div class="up-pw-requirements" *ngIf="passwordForm.newPassword">
+          <span class="up-req" [class.up-req--met]="passwordRequirements.minLength">
+            At least 8 characters
+          </span>
+          <span class="up-req" [class.up-req--met]="passwordRequirements.hasCapital">
+            One uppercase letter
+          </span>
+          <span class="up-req" [class.up-req--met]="passwordRequirements.hasNumber">
+            One number
+          </span>
+          <span class="up-req" [class.up-req--met]="passwordRequirements.passwordsMatch">
+            Passwords match
+          </span>
+        </div>
+
+        <div class="up-card-actions">
+          <button class="btn btn--primary"
+                  (click)="changePassword()"
+                  [disabled]="!isPasswordValid() || isChangingPassword">
+            {{ isChangingPassword ? 'Updating…' : 'Update Password' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════════
+           DELIVERY ADDRESS
+      ══════════════════════════════════════════════════════════ -->
+      <div class="up-card up-address-card">
+        <div class="up-card-header">
+          <h2 class="up-card-title">Delivery Address</h2>
+          <p class="up-card-sub">Click the map to set your delivery location</p>
+        </div>
+
+        <!-- Address search -->
+        <div class="up-address-search">
+          <div class="up-search-row">
+            <input type="text" class="up-input"
+                   [(ngModel)]="addressSearchQuery"
+                   placeholder="Search for your address…"
+                   (keyup.enter)="searchAddress()">
+            <button class="btn btn--ghost up-search-btn" (click)="searchAddress()">
+              Search
+            </button>
+          </div>
+          <div class="up-search-results" *ngIf="searchResults.length > 0">
+            <div class="up-result-item"
+                 *ngFor="let r of searchResults"
+                 (click)="selectSearchResult(r)">
+              {{ r.display_name }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Map hint -->
+        <p class="up-map-hint">
+          Click on the map to set your delivery location, or drag the marker.
+        </p>
+
+        <!-- Leaflet map -->
+        <div id="delivery-map" class="up-delivery-map"></div>
+
+        <!-- Invalid location warning -->
+        <div class="up-location-error" *ngIf="locationError">
+          {{ locationError }}
+        </div>
+
+        <!-- Delivery cost card -->
+        <div class="up-cost-card" *ngIf="selectedLat !== null && deliveryQuote !== null">
+          <ng-container *ngIf="deliveryQuote!.inZone; else outOfZone">
+            <div class="up-cost-row up-cost-row--store">
+              <span class="up-cost-label">Nearest Store</span>
+              <span class="up-cost-val up-cost-val--store">{{ deliveryQuote!.nearestStoreName }}</span>
+            </div>
+            <div class="up-cost-row">
+              <span class="up-cost-label">Distance</span>
+              <span class="up-cost-val">{{ deliveryQuote!.distanceKm }} km</span>
+            </div>
+            <div class="up-cost-row up-cost-row--total">
+              <span class="up-cost-label">Delivery Fee</span>
+              <span class="up-cost-val up-cost-val--price">₾{{ deliveryQuote!.cost.toFixed(2) }}</span>
+            </div>
+            <p class="up-cost-note">Max ₾4.00 · Covers all of Tbilisi up to Koda village</p>
+          </ng-container>
+          <ng-template #outOfZone>
+            <div class="up-out-of-zone">
+              ⚠️ This address is outside our delivery zone. Please select a location within Tbilisi.
+            </div>
+          </ng-template>
+        </div>
+
+        <!-- Address fields -->
+        <div class="up-field-grid up-address-fields">
+          <div class="up-field up-field--full">
+            <label class="up-label">Street Address</label>
+            <input type="text" [(ngModel)]="addressLine"
+                   class="up-input"
+                   placeholder="Select on map or type address">
+          </div>
+          <div class="up-field">
+            <label class="up-label">Phone Number</label>
+            <input type="tel" [(ngModel)]="phone"
+                   class="up-input"
+                   placeholder="+995 5XX XXX XXX">
+          </div>
+        </div>
+
+        <div class="up-card-actions">
+          <button class="btn btn--primary"
+                  (click)="saveAddress()"
+                  [disabled]="isSavingAddress || !selectedLat">
+            {{ isSavingAddress ? 'Saving…' : 'Save Address' }}
+          </button>
+        </div>
+      </div>
+
     </div>
   </div>
-  <div class="message-container" *ngIf="errorMessage">
-    <div class="error-message">
-      <span>❌</span>
-      <span>{{ errorMessage }}</span>
-    </div>
+
+  <!-- ── Toast notifications ──────────────────────────────────────── -->
+  <div class="up-toast up-toast--success" *ngIf="successMessage">
+    <span class="up-toast-icon">✓</span>
+    <span>{{ successMessage }}</span>
   </div>
+  <div class="up-toast up-toast--error" *ngIf="errorMessage">
+    <span class="up-toast-icon">✕</span>
+    <span>{{ errorMessage }}</span>
+  </div>
+
 </div>

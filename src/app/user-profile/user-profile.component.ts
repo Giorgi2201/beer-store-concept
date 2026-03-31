@@ -115,19 +115,20 @@ export class UserProfileComponent implements OnInit, AfterViewInit, OnDestroy {
       zoom: 12
     });
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      maxZoom: 19
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      maxZoom: 19,
+      subdomains: 'abcd',
+      attribution: '© <a href="https://carto.com/">CARTO</a>'
     }).addTo(this.map);
 
     // Delivery zone circle (visual only — actual zone check is server-side)
     this.zoneCircle = L.circle([TBILISI_CENTER_LAT, TBILISI_CENTER_LNG], {
       radius: DELIVERY_ZONE_KM * 1000,
-      color: '#8b6914',
-      fillColor: '#c9a227',
-      fillOpacity: 0.07,
+      color: 'rgba(212,131,26,0.75)',
+      fillColor: 'rgba(212,131,26,0.08)',
+      fillOpacity: 1,
       weight: 2,
-      dashArray: '8 5'
+      dashArray: '6 4'
     }).addTo(this.map);
 
     const storeIcon = L.divIcon({
@@ -244,9 +245,9 @@ export class UserProfileComponent implements OnInit, AfterViewInit, OnDestroy {
       next: (quote) => {
         this.deliveryQuote = quote;
         this.zoneCircle?.setStyle({
-          color:       quote.inZone ? '#8b6914' : '#cc3333',
-          fillColor:   quote.inZone ? '#c9a227' : '#cc3333',
-          fillOpacity: quote.inZone ? 0.07 : 0.10
+          color:       quote.inZone ? 'rgba(212,131,26,0.75)' : 'rgba(204,68,68,0.75)',
+          fillColor:   quote.inZone ? 'rgba(212,131,26,0.08)' : 'rgba(204,68,68,0.10)',
+          fillOpacity: 1
         });
       }
     });

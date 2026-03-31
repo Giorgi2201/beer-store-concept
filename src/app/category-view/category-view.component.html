@@ -1,196 +1,208 @@
-<div class="category-view-container">
-    <!-- Category Header -->
-    <div class="category-header">
-        <div class="results-info">
-            <span class="results-count">{{ filteredBeers.length }} beers found</span>
+<div class="cv-wrap">
+
+  <!-- ── Page header ───────────────────────────────────────── -->
+  <div class="cv-page-header page-container">
+    <div class="cv-page-title-row">
+      <h1 class="heading-1">{{ categoryName || 'All Beers' }}</h1>
+      <span class="results-pill" *ngIf="!isLoading">{{ filteredBeers.length }} beers</span>
+    </div>
+  </div>
+
+  <div class="cv-layout page-container">
+
+    <!-- ═══════════════════════════════════════════════════════
+         FILTERS SIDEBAR
+    ════════════════════════════════════════════════════════= -->
+    <aside class="cv-sidebar">
+
+      <div class="sidebar-header">
+        <span class="sidebar-title">Filters</span>
+        <button class="btn btn--ghost btn--sm"
+          *ngIf="selectedStyles.length > 0 || selectedBrands.length > 0 || searchTerm"
+          (click)="clearFilters()">
+          Clear all
+        </button>
+      </div>
+
+      <!-- Search -->
+      <div class="filter-group">
+        <div class="filter-search-wrap">
+          <span class="filter-search-icon">{{ isLoading ? '⏳' : '🔍' }}</span>
+          <input
+            type="text"
+            class="filter-search-input"
+            placeholder="Search beers..."
+            autocomplete="off"
+            name="filter-search"
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="onSearchTermChange()"
+          />
+          <button class="filter-search-clear"
+            *ngIf="searchTerm"
+            type="button"
+            (click)="searchTerm = ''; onSearchTermChange()">✕</button>
         </div>
-    </div>
+      </div>
 
-    <div class="category-content">
-        <!-- Filters Sidebar -->
-        <aside class="filters-sidebar">
-            <div class="filters-header">
-                <h2 class="filters-title">
-                    <span class="filter-icon">🔍</span>
-                    Filters
-                </h2>
-                <button class="clear-filters-button" (click)="clearFilters()"
-                    *ngIf="selectedStyles.length > 0 || selectedBrands.length > 0 || searchTerm">
-                    Clear All
+      <!-- Sort -->
+      <div class="filter-group">
+        <label class="filter-label">Sort By</label>
+        <select class="filter-select" [(ngModel)]="sortBy" (change)="onSortChange()">
+          <option value="name">Name (A–Z)</option>
+          <option value="brand">Brand (A–Z)</option>
+          <option value="price-asc">Price: Low → High</option>
+          <option value="price-desc">Price: High → Low</option>
+        </select>
+      </div>
+
+      <!-- Style -->
+      <div class="filter-group" *ngIf="filterOptions.styles.length > 0">
+        <label class="filter-label">Style</label>
+        <div class="filter-options">
+          <label class="filter-check" *ngFor="let style of filterOptions.styles">
+            <input
+              type="checkbox"
+              [checked]="selectedStyles.includes(style)"
+              (change)="toggleStyleFilter(style)"
+            />
+            <span class="filter-check-label">{{ style }}</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Brand -->
+      <div class="filter-group" *ngIf="filterOptions.brands.length > 0">
+        <label class="filter-label">Brand</label>
+        <div class="filter-options">
+          <label class="filter-check" *ngFor="let brand of filterOptions.brands">
+            <input
+              type="checkbox"
+              [checked]="selectedBrands.includes(brand)"
+              (change)="toggleBrandFilter(brand)"
+            />
+            <span class="filter-check-label">{{ brand }}</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Price range -->
+      <div class="filter-group filter-group--last">
+        <label class="filter-label">Price Range</label>
+        <div class="price-row">
+          <div class="price-field">
+            <span class="price-symbol">₾</span>
+            <input
+              type="number"
+              class="filter-number-input"
+              placeholder="Min"
+              [(ngModel)]="minPrice"
+              [min]="filterOptions.priceRange.min"
+              [max]="maxPrice"
+              (change)="onPriceChange()"
+            />
+          </div>
+          <span class="price-sep">—</span>
+          <div class="price-field">
+            <span class="price-symbol">₾</span>
+            <input
+              type="number"
+              class="filter-number-input"
+              placeholder="Max"
+              [(ngModel)]="maxPrice"
+              [min]="minPrice"
+              [max]="filterOptions.priceRange.max"
+              (change)="onPriceChange()"
+            />
+          </div>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- ═══════════════════════════════════════════════════════
+         BEER GRID
+    ════════════════════════════════════════════════════════= -->
+    <main class="cv-main">
+
+      <!-- Loading skeleton -->
+      <div class="beer-grid" *ngIf="isLoading">
+        <div class="beer-skeleton" *ngFor="let i of [1,2,3,4,5,6,7,8,9]">
+          <div class="sk-img"></div>
+          <div class="sk-body">
+            <div class="sk-line sk-line--wide"></div>
+            <div class="sk-line"></div>
+            <div class="sk-line sk-line--short"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Beer tiles -->
+      <div class="beer-grid" *ngIf="!isLoading && filteredBeers.length > 0">
+        <div *ngFor="let beer of filteredBeers"
+             class="beer-tile"
+             [class.cart-added]="addedToCart[beer.id]">
+
+          <div class="beer-img-wrap">
+            <img [src]="beer.imageUrl" [alt]="beer.brand + ' ' + beer.name" class="beer-img">
+            <span class="beer-style-tag">{{ beer.style }}</span>
+            <span class="beer-country-tag" *ngIf="beer.country">{{ beer.country }}</span>
+            <!-- Cart-added overlay -->
+            <div class="cart-added-check" *ngIf="addedToCart[beer.id]">
+              <span class="cart-added-check-icon">✓</span>
+            </div>
+          </div>
+
+          <div class="beer-body">
+            <div class="beer-meta-row">
+              <span class="beer-brand">{{ beer.brand }}</span>
+              <span class="beer-abv" *ngIf="beer.alcoholContent">{{ beer.alcoholContent }}%</span>
+            </div>
+            <p class="beer-name">{{ beer.name }}</p>
+
+            <div class="beer-footer-row">
+              <span class="beer-price">₾{{ beer.price.toFixed(2) }}</span>
+
+              <!-- Quantity control when already in cart -->
+              <div class="qty-control" *ngIf="isLoggedIn && cartItemMap[beer.id]">
+                <button class="qty-control__btn"
+                  [class.qty-control__btn--remove]="cartItemMap[beer.id].quantity === 1"
+                  [disabled]="updatingQty[beer.id]"
+                  (click)="decreaseQty(beer.id)">
+                  {{ cartItemMap[beer.id].quantity === 1 ? '×' : '−' }}
                 </button>
+                <span class="qty-control__val">{{ cartItemMap[beer.id].quantity }}</span>
+                <button class="qty-control__btn"
+                  [disabled]="updatingQty[beer.id]"
+                  (click)="increaseQty(beer.id)">+</button>
+              </div>
+
+              <!-- Add to cart button when not in cart -->
+              <button class="btn btn--primary btn--sm add-btn"
+                *ngIf="!isLoggedIn || !cartItemMap[beer.id]"
+                [class.add-btn--added]="addedToCart[beer.id]"
+                [disabled]="addingToCart[beer.id] || addedToCart[beer.id]"
+                (click)="addToCart(beer)">
+                {{ addedToCart[beer.id] ? '✓ Added' : (addingToCart[beer.id] ? '…' : (isLoggedIn ? '+ Cart' : 'Login')) }}
+              </button>
             </div>
+          </div>
 
-            <!-- Search -->
-            <div class="filter-group filter-search-group">
-                <div class="filter-search-wrapper">
-                    <span class="filter-search-icon">{{ isLoading ? '⏳' : '🔍' }}</span>
-                    <input
-                        type="text"
-                        class="filter-search-input"
-                        placeholder="Search beers..."
-                        autocomplete="off"
-                        name="filter-search"
-                        [(ngModel)]="searchTerm"
-                        (ngModelChange)="onSearchTermChange()"
-                    />
-                    <button class="filter-search-clear" *ngIf="searchTerm" (click)="searchTerm = ''; onSearchTermChange()">✕</button>
-                </div>
-            </div>
+        </div>
+      </div>
 
-            <!-- Sort By -->
-            <div class="filter-group">
-                <h3 class="filter-group-title">Sort By</h3>
-                <select class="sort-select" [(ngModel)]="sortBy" (change)="onSortChange()">
-                    <option value="name">Name (A-Z)</option>
-                    <option value="brand">Brand (A-Z)</option>
-                    <option value="price-asc">Price (Low to High)</option>
-                    <option value="price-desc">Price (High to Low)</option>
-                </select>
-            </div>
+      <!-- No results -->
+      <div class="cv-empty" *ngIf="!isLoading && filteredBeers.length === 0">
+        <span class="cv-empty-icon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </span>
+        <h3 class="heading-3">No beers found</h3>
+        <p class="text-muted">Try adjusting your filters or search term.</p>
+        <button class="btn btn--ghost" (click)="clearFilters()">Clear all filters</button>
+      </div>
 
-            <!-- Style Filter -->
-            <div class="filter-group">
-                <h3 class="filter-group-title">Beer Style</h3>
-                <div class="filter-options">
-                    <label *ngFor="let style of filterOptions.styles" class="filter-checkbox">
-                        <input 
-                            type="checkbox" 
-                            [checked]="selectedStyles.includes(style)"
-                            (change)="toggleStyleFilter(style)"
-                        />
-                        <span class="checkbox-label">{{ style }}</span>
-                    </label>
-                </div>
-            </div>
+    </main>
 
-            <!-- Brand Filter -->
-            <div class="filter-group">
-                <h3 class="filter-group-title">Brand</h3>
-                <div class="filter-options">
-                    <label *ngFor="let brand of filterOptions.brands" class="filter-checkbox">
-                        <input 
-                            type="checkbox" 
-                            [checked]="selectedBrands.includes(brand)"
-                            (change)="toggleBrandFilter(brand)"
-                        />
-                        <span class="checkbox-label">{{ brand }}</span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Price Range Filter -->
-            <div class="filter-group">
-                <h3 class="filter-group-title">Price Range</h3>
-                <div class="price-range-inputs">
-                    <div class="price-input-group">
-                        <label class="price-label">Min:</label>
-                        <input 
-                            type="number" 
-                            class="price-input" 
-                            [(ngModel)]="minPrice" 
-                            [min]="filterOptions.priceRange.min"
-                            [max]="maxPrice"
-                            (change)="onPriceChange()"
-                        />
-                        <span class="currency-symbol">₾</span>
-                    </div>
-                    <div class="price-input-group">
-                        <label class="price-label">Max:</label>
-                        <input 
-                            type="number" 
-                            class="price-input" 
-                            [(ngModel)]="maxPrice" 
-                            [min]="minPrice"
-                            [max]="filterOptions.priceRange.max"
-                            (change)="onPriceChange()"
-                        />
-                        <span class="currency-symbol">₾</span>
-                    </div>
-                </div>
-            </div>
-        </aside>
-
-        <!-- Beer Grid -->
-        <main class="beers-grid-container">
-            <!-- Loading State -->
-            <div class="loading-state" *ngIf="isLoading">
-                <span class="loading-icon">⏳</span>
-                <p>Loading beers...</p>
-            </div>
-
-            <div class="beers-grid" *ngIf="!isLoading && filteredBeers.length > 0">
-                <div *ngFor="let beer of filteredBeers" class="beer-tile"
-                     [class.cart-added]="addedToCart[beer.id]">
-                    <div class="beer-image-container">
-                        <img [src]="beer.imageUrl" [alt]="beer.brand + ' ' + beer.name" class="beer-image" />
-                        <div class="beer-overlay">
-                            <span class="beer-style">{{ beer.style }}</span>
-                        </div>
-                        <!-- Success overlay: fades in and out when item is added -->
-                        <div class="cart-added-check" *ngIf="addedToCart[beer.id]">
-                            <span class="cart-added-check-icon">✓</span>
-                        </div>
-                    </div>
-                    
-                    <div class="beer-info">
-                        <h3 class="beer-brand">{{ beer.brand }}</h3>
-                        <p class="beer-name">{{ beer.name }}</p>
-                        
-                        <div class="beer-details">
-                            <div class="beer-country">
-                                <span class="detail-icon">🌍</span>
-                                <span>{{ beer.country }}</span>
-                            </div>
-                        </div>
-                        
-                        <div class="beer-footer">
-                            <div class="beer-price">
-                                <span class="currency">₾</span>
-                                <span class="price-value">{{ beer.price.toFixed(2) }}</span>
-                            </div>
-
-                            <!-- Quantity controls — shown when beer is already in the cart -->
-                            <div class="card-qty-controls" *ngIf="isLoggedIn && cartItemMap[beer.id]">
-                                <button class="card-qty-btn remove-btn"
-                                    [class.is-remove]="cartItemMap[beer.id].quantity === 1"
-                                    [disabled]="updatingQty[beer.id]"
-                                    (click)="decreaseQty(beer.id)">
-                                    {{ cartItemMap[beer.id].quantity === 1 ? '🗑' : '−' }}
-                                </button>
-                                <span class="card-qty-val">{{ cartItemMap[beer.id].quantity }}</span>
-                                <button class="card-qty-btn"
-                                    [disabled]="updatingQty[beer.id]"
-                                    (click)="increaseQty(beer.id)">+</button>
-                            </div>
-
-                            <!-- Add to Cart button — shown when beer is NOT in the cart -->
-                            <button class="add-to-cart-button"
-                                *ngIf="!isLoggedIn || !cartItemMap[beer.id]"
-                                [class.adding]="addingToCart[beer.id]"
-                                [class.added]="addedToCart[beer.id]"
-                                [disabled]="addingToCart[beer.id] || addedToCart[beer.id]"
-                                (click)="addToCart(beer)">
-                                <span class="button-icon">
-                                    {{ addedToCart[beer.id] ? '✓' : (addingToCart[beer.id] ? '⏳' : '🛒') }}
-                                </span>
-                                <span>
-                                    {{ addedToCart[beer.id] ? 'Added!' : (addingToCart[beer.id] ? 'Adding...' : (isLoggedIn ? 'Add to Cart' : 'Log in to Buy')) }}
-                                </span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- No Results -->
-            <div class="no-results" *ngIf="!isLoading && filteredBeers.length === 0">
-                <span class="no-results-icon">😔</span>
-                <h3 class="no-results-title">No beers found</h3>
-                <p class="no-results-text">Try adjusting your filters to see more results</p>
-                <button class="clear-filters-button-large" (click)="clearFilters()">
-                    Clear All Filters
-                </button>
-            </div>
-        </main>
-    </div>
+  </div>
 </div>

@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Output, OnInit, OnDestroy, AfterViewInit, HostListener } from '@angular/core';
+import { Component, EventEmitter, Output, OnInit, OnDestroy, AfterViewInit, HostListener, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs';
@@ -20,6 +21,7 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewInit {
   @Output() openProfile = new EventEmitter<void>();
   @Output() searchAll = new EventEmitter<string>();
   
+  isScrolled = false;
   isLoggedIn = false;
   cartItemCount = 0;
   currentUserName = '';
@@ -283,6 +285,11 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewInit {
     this.searchQuery = '';
     this.searchResults = [];
     this.showSearchDropdown = false;
+  }
+
+  @HostListener('window:scroll')
+  onWindowScroll() {
+    this.isScrolled = window.scrollY > 40;
   }
 
   @HostListener('document:click', ['$event'])
